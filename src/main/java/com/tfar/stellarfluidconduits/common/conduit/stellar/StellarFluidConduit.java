@@ -1,11 +1,11 @@
-package com.tfar.stellarfluidconduit.common.conduit.stellar;
+package com.tfar.stellarfluidconduits.common.conduit.stellar;
 
 import com.enderio.core.client.render.BoundingBox;
 import com.enderio.core.client.render.IconUtil;
 import com.enderio.core.common.util.DyeColor;
 import com.enderio.core.common.util.NNList;
 import com.enderio.core.common.vecmath.Vector4f;
-import com.tfar.stellarfluidconduit.common.conduit.FluidConduitObject;
+import com.tfar.stellarfluidconduits.common.conduit.FluidConduitObject;
 import crazypants.enderio.base.conduit.*;
 import crazypants.enderio.base.conduit.geom.CollidableCache;
 import crazypants.enderio.base.conduit.geom.CollidableComponent;
@@ -41,7 +41,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
-import net.minecraftforge.fluids.capability.FluidTankProperties;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -56,7 +55,7 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
     public static final IConduitTexture ICON_KEY = new ConduitTexture(TextureRegistry.registerTexture("stellarfluidconduits:blocks/liquid_conduit"), ConduitTexture.arm(3));
     public static final IConduitTexture ICON_CORE_KEY = new ConduitTexture(TextureRegistry.registerTexture("stellarfluidconduits:blocks/conduit_core_1"), ConduitTexture.core(2));
 
-    private StellarFluidConduit network;
+    private StellarFluidConduitNetwork network;
     private int ticksSinceFailedExtract;
 
     private final @Nonnull
@@ -103,8 +102,7 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
     }
 
     @Override
-    public @Nonnull
-    NNList<ItemStack> getDrops() {
+    public @Nonnull NNList<ItemStack> getDrops() {
         NNList<ItemStack> res = super.getDrops();
         for (ItemStack stack : functionUpgrades.values()) {
             res.add(stack);
@@ -152,8 +150,7 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
     }
 
     @Override
-    @Nullable
-    public IConduitNetwork<?, ?> getNetwork() {
+    public @Nullable IConduitNetwork<?, ?> getNetwork() {
         return network;
     }
 
@@ -188,7 +185,7 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
         } else {
             outputFilterUpgrades.put(dir, stack);
         }
-        setFilter(dir, FilterRegistry.<IFluidFilter>getFilterForUpgrade(stack), isInput);
+        setFilter(dir, FilterRegistry.<IFluidFilter> getFilterForUpgrade(stack), isInput);
         setClientStateDirty();
     }
 
@@ -198,7 +195,10 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
             return false;
         }
         this.network = (StellarFluidConduitNetwork) network;
-        externalConnections.forEach(dir -> this.network.connectionChanged(this, dir));
+        for (EnumFacing dir : externalConnections) {
+            this.network.connectionChanged(this, dir);
+        }
+
         return super.setNetwork(network);
     }
 
@@ -225,15 +225,13 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
     }
 
     @Override
-    public @Nonnull
-    IConduitTexture getTransmitionTextureForState(@Nonnull CollidableComponent component) {
+    public @Nonnull IConduitTexture getTransmitionTextureForState(@Nonnull CollidableComponent component) {
         return ItemConduit.ICON_KEY_ENDER;
     }
 
     @Override
     @SideOnly(Side.CLIENT)
-    public @Nullable
-    Vector4f getTransmitionTextureColorForState(@Nonnull CollidableComponent component) {
+    public @Nullable Vector4f getTransmitionTextureColorForState(@Nonnull CollidableComponent component) {
         return null;
     }
 
@@ -581,9 +579,9 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
     @Nonnull
     public ItemStack getFilterStack(int filterIndex, int param1) {
         if (filterIndex == FilterGuiUtil.INDEX_INPUT_FLUID) {
-            return getFilterStack(EnumFacing.getFront(param1), true);
+            return getFilterStack(EnumFacing.byIndex(param1), true);
         } else if (filterIndex == FilterGuiUtil.INDEX_OUTPUT_FLUID) {
-            return getFilterStack(EnumFacing.getFront(param1), false);
+            return getFilterStack(EnumFacing.byIndex(param1), false);
         }
         return ItemStack.EMPTY;
     }
@@ -591,9 +589,9 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
     @Override
     public IFluidFilter getFilter(int filterIndex, int param1) {
         if (filterIndex == FilterGuiUtil.INDEX_INPUT_FLUID) {
-            return getFilter(EnumFacing.getFront(param1), true);
+            return getFilter(EnumFacing.byIndex(param1), true);
         } else if (filterIndex == FilterGuiUtil.INDEX_OUTPUT_FLUID) {
-            return getFilter(EnumFacing.getFront(param1), false);
+            return getFilter(EnumFacing.byIndex(param1), false);
         }
         return null;
     }
@@ -601,18 +599,18 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
     @Override
     public void setFilter(int filterIndex, int param1, @Nonnull IFluidFilter filter) {
         if (filterIndex == FilterGuiUtil.INDEX_INPUT_FLUID) {
-            setFilter(EnumFacing.getFront(param1), filter, true);
+            setFilter(EnumFacing.byIndex(param1), filter, true);
         } else if (filterIndex == FilterGuiUtil.INDEX_OUTPUT_FLUID) {
-            setFilter(EnumFacing.getFront(param1), filter, false);
+            setFilter(EnumFacing.byIndex(param1), filter, false);
         }
     }
 
     @Override
     public void setFilterStack(int filterIndex, int param1, @Nonnull ItemStack stack) {
         if (filterIndex == FilterGuiUtil.INDEX_INPUT_FLUID) {
-            setFilterStack(EnumFacing.getFront(param1), stack, true);
+            setFilterStack(EnumFacing.byIndex(param1), stack, true);
         } else if (filterIndex == FilterGuiUtil.INDEX_OUTPUT_FLUID) {
-            setFilterStack(EnumFacing.getFront(param1), stack, false);
+            setFilterStack(EnumFacing.byIndex(param1), stack, false);
         }
     }
 
@@ -632,7 +630,7 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
     }
 
     // ------------------------------------------------
-    // ENDER CONDUIT START
+    // STELLAR CONDUIT START
     // ------------------------------------------------
 
     @Override
@@ -696,12 +694,12 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
     @Override
     @Nonnull
     public ItemStack getUpgradeStack(int param1) {
-        return this.getFunctionUpgrade(EnumFacing.getFront(param1));
+        return this.getFunctionUpgrade(EnumFacing.byIndex(param1));
     }
 
     @Override
     public void setUpgradeStack(int param1, @Nonnull ItemStack stack) {
-        this.setFunctionUpgrade(EnumFacing.getFront(param1), stack);
+        this.setFunctionUpgrade(EnumFacing.byIndex(param1), stack);
     }
 
     @SuppressWarnings("unchecked")
@@ -728,40 +726,24 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
         public ConnectionStellarFluidSide(EnumFacing side) {
             super(side);
         }
-
-        @Override
-        public int fill(FluidStack resource, boolean doFill) {
-            if (canFill(side, resource)) {
-                return network.fillFrom(StellarFluidConduit.this, side, resource, doFill);
-            }
-            return 0;
-        }
-
-        @Override
-        public IFluidTankProperties[] getTankProperties() {
-            if (network == null) {
-                return new FluidTankProperties[0];
-            }
-            return network.getTankProperties(StellarFluidConduit.this, side);
-        }
     }
 
-    @Override
-    @Nonnull
-    public Collection<CollidableComponent> createCollidables(@Nonnull CollidableCache.CacheKey key) {
-        Collection<CollidableComponent> baseCollidables = super.createCollidables(key);
-        final EnumFacing keydir = key.dir;
-        if (keydir == null) {
-            return baseCollidables;
+        @Override
+        @Nonnull
+        public Collection<CollidableComponent> createCollidables(@Nonnull CollidableCache.CacheKey key) {
+            Collection<CollidableComponent> baseCollidables = super.createCollidables(key);
+            final EnumFacing keydir = key.dir;
+            if (keydir == null) {
+                return baseCollidables;
+            }
+
+            BoundingBox bb = ConduitGeometryUtil.getInstance().createBoundsForConnectionController(keydir, key.offset);
+            CollidableComponent cc = new CollidableComponent(ILiquidConduit.class, bb, keydir, IPowerConduit.COLOR_CONTROLLER_ID);
+
+            List<CollidableComponent> result = new ArrayList<CollidableComponent>();
+            result.addAll(baseCollidables);
+            result.add(cc);
+
+            return result;
         }
-
-        BoundingBox bb = ConduitGeometryUtil.getInstance().createBoundsForConnectionController(keydir, key.offset);
-        CollidableComponent cc = new CollidableComponent(ILiquidConduit.class, bb, keydir, IPowerConduit.COLOR_CONTROLLER_ID);
-
-        List<CollidableComponent> result = new ArrayList<>();
-        result.addAll(baseCollidables);
-        result.add(cc);
-
-        return result;
     }
-}

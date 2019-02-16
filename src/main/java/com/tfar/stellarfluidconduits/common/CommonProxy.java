@@ -1,4 +1,4 @@
-package com.tfar.stellarfluidconduit.common;
+package com.tfar.stellarfluidconduits.common;
 
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;

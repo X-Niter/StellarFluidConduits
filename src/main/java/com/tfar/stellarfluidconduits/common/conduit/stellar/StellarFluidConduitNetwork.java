@@ -1,4 +1,4 @@
-package com.tfar.stellarfluidconduit.common.conduit.stellar;
+package com.tfar.stellarfluidconduits.common.conduit.stellar;
 
 import crazypants.enderio.base.conduit.item.FunctionUpgrade;
 import crazypants.enderio.base.conduit.item.ItemFunctionUpgrade;
@@ -9,8 +9,8 @@ import crazypants.enderio.base.filter.fluid.IFluidFilter;
 import crazypants.enderio.conduits.conduit.AbstractConduitNetwork;
 import crazypants.enderio.conduits.conduit.liquid.ILiquidConduit;
 
-import com.tfar.stellarfluidconduit.common.conduit.NetworkTank;
-import com.tfar.stellarfluidconduit.common.config.StellarFluidConduitConfig;
+import com.tfar.stellarfluidconduits.common.conduit.NetworkTank;
+import com.tfar.stellarfluidconduits.common.config.StellarFluidConduitConfig;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
@@ -21,7 +21,7 @@ import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import javax.annotation.Nonnull;
 import java.util.*;
 
-public class StellarFluidConduitNetwork extends AbstractConduitNetwork<ILiquidConduit, StellarFluidConduit> {
+public class StellarFluidConduitNetwork extends AbstractConduitNetwork<ILiquidConduit, StellarFluidConduit>{
     List<NetworkTank> tanks = new ArrayList<>();
     Map<NetworkTankKey, NetworkTank> tankMap = new HashMap<>();
 
@@ -156,7 +156,6 @@ public class StellarFluidConduitNetwork extends AbstractConduitNetwork<ILiquidCo
 
         return extractSpeedMultiplier;
     }
-
     private boolean matchedFilter(FluidStack drained, @Nonnull StellarFluidConduit con, @Nonnull EnumFacing conDir, boolean isInput) {
         if (drained == null) {
             return false;

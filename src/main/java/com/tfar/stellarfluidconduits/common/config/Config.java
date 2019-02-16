@@ -1,7 +1,7 @@
-package com.tfar.stellarfluidconduit.common.config;
+package com.tfar.stellarfluidconduits.common.config;
 
 import crazypants.enderio.base.config.factory.ValueFactoryEIO;
-import com.tfar.stellarfluidconduit.ReferenceVariables;
+import com.tfar.stellarfluidconduits.ReferenceVariables;
 
     public final class Config {
         public static final ValueFactoryEIO F = new ValueFactoryEIO(ReferenceVariables.MOD_ID);

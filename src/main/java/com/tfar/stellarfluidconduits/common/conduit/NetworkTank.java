@@ -1,4 +1,4 @@
-package com.tfar.stellarfluidconduit.common.conduit;
+package com.tfar.stellarfluidconduits.common.conduit;
 
 
 import javax.annotation.Nonnull;
@@ -6,7 +6,7 @@ import javax.annotation.Nonnull;
 import com.enderio.core.common.fluid.IFluidWrapper;
 import com.enderio.core.common.util.DyeColor;
 
-import com.tfar.stellarfluidconduit.common.conduit.stellar.StellarFluidConduit;
+import com.tfar.stellarfluidconduits.common.conduit.stellar.StellarFluidConduit;
 import crazypants.enderio.base.conduit.ConnectionMode;
 import crazypants.enderio.conduits.conduit.liquid.AbstractLiquidConduit;
 import net.minecraft.util.EnumFacing;

@@ -1,4 +1,4 @@
-package com.tfar.stellarfluidconduit.common.conduit.stellar;
+package com.tfar.stellarfluidconduits.common.conduit.stellar;
 
 import crazypants.enderio.base.conduit.IClientConduit;
 import crazypants.enderio.base.conduit.IConduit;

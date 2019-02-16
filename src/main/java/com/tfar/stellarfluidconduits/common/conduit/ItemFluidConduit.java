@@ -1,10 +1,10 @@
-package com.tfar.stellarfluidconduit.common.conduit;
+package com.tfar.stellarfluidconduits.common.conduit;
 
 import com.enderio.core.api.client.gui.IAdvancedTooltipProvider;
-import com.tfar.stellarfluidconduit.ReferenceVariables;
-import com.tfar.stellarfluidconduit.common.conduit.stellar.StellarFluidConduit;
-import com.tfar.stellarfluidconduit.common.conduit.stellar.StellarFluidConduitRenderer;
-import com.tfar.stellarfluidconduit.common.config.StellarFluidConduitConfig;
+import com.tfar.stellarfluidconduits.ReferenceVariables;
+import com.tfar.stellarfluidconduits.common.conduit.stellar.StellarFluidConduit;
+import com.tfar.stellarfluidconduits.common.conduit.stellar.StellarFluidConduitRenderer;
+import com.tfar.stellarfluidconduits.common.config.StellarFluidConduitConfig;
 import crazypants.enderio.api.IModObject;
 import crazypants.enderio.base.conduit.ConduitDisplayMode;
 import crazypants.enderio.base.conduit.IConduit;

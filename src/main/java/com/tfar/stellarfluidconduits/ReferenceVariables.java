@@ -1,4 +1,4 @@
-package com.tfar.stellarfluidconduit;
+package com.tfar.stellarfluidconduits;
 
 public class ReferenceVariables {
     public static final String MOD_ID = "stellarfluidconduits";

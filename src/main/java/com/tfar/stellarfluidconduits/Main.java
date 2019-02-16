@@ -1,6 +1,6 @@
-package com.tfar.stellarfluidconduit;
+package com.tfar.stellarfluidconduits;
 
-import com.tfar.stellarfluidconduit.common.CommonProxy;
+import com.tfar.stellarfluidconduits.common.CommonProxy;
 import crazypants.enderio.api.addon.IEnderIOAddon;
 import info.loenwind.autoconfig.ConfigHandler;
 import net.minecraftforge.fml.common.Mod;
