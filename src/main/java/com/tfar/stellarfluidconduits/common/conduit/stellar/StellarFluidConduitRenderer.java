@@ -15,6 +15,8 @@ import javax.annotation.Nonnull;
 import java.util.List;
 
 public class StellarFluidConduitRenderer extends DefaultConduitRenderer {
+
+
     @Override
     public boolean isRendererForConduit(@Nonnull IConduit conduit) {
         return conduit instanceof StellarFluidConduit;

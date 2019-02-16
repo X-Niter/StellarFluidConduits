@@ -6,6 +6,7 @@ import com.enderio.core.common.util.DyeColor;
 import com.enderio.core.common.util.NNList;
 import com.enderio.core.common.vecmath.Vector4f;
 import com.tfar.stellarfluidconduits.common.conduit.FluidConduitObject;
+import crazypants.enderio.api.IModObject;
 import crazypants.enderio.base.conduit.*;
 import crazypants.enderio.base.conduit.geom.CollidableCache;
 import crazypants.enderio.base.conduit.geom.CollidableComponent;

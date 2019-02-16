@@ -29,10 +29,16 @@ import java.util.List;
 
 public class ItemFluidConduit extends AbstractItemConduit implements IAdvancedTooltipProvider {
 
+
+    public static ItemFluidConduit create(@Nonnull IModObject modObject) {
+        return new ItemFluidConduit(modObject);}
     protected ItemFluidConduit(@Nonnull IModObject modObject) {
-        super(modObject, new ItemConduitSubtype(modObject.getUnlocalisedName() + "_stellar", modObject.getRegistryName().toString() + "_stellar"));
-        ConduitRegistry.register(ConduitBuilder.start().setUUID(new ResourceLocation(ReferenceVariables.MOD_ID, "fluid")).setClass(getBaseConduitType())
-                .build().setUUID(new ResourceLocation(ReferenceVariables.MOD_ID, "stellar_fluid_conduit")).setClass(StellarFluidConduit.class).build().finish());
+        super(modObject, new ItemConduitSubtype(modObject.getUnlocalisedName() + "_stellar",
+                modObject.getRegistryName().toString() + "_stellar"));
+        ConduitRegistry.register(ConduitBuilder.start().setUUID(new ResourceLocation(ReferenceVariables.MOD_ID,
+                "fluid")).setClass(getBaseConduitType())
+                .build().setUUID(new ResourceLocation(ReferenceVariables.MOD_ID,
+                        "stellar_fluid_conduit")).setClass(StellarFluidConduit.class).build().finish());
         ConduitDisplayMode.registerDisplayMode(new ConduitDisplayMode(getBaseConduitType(), IconEIO.WRENCH_OVERLAY_FLUID, IconEIO.WRENCH_OVERLAY_FLUID_OFF));
     }
     @Override
