@@ -16,7 +16,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public enum FluidConduitObject implements IModObjectBase {
-    itemFluidConduit(ItemStellarFluidConduit::create),
+    itemFluidConduit(ItemStellarFluidConduit.class),
 
 
     //   itemFluidFilter(ItemFluidFilter.class);
