@@ -2,9 +2,11 @@ package com.tfar.stellarfluidconduits;
 
 import com.tfar.stellarfluidconduits.common.CommonProxy;
 import com.tfar.stellarfluidconduits.common.conduit.FluidConduitObject;
+import com.tfar.stellarfluidconduits.common.conduit.ItemStellarFluidConduit;
 import com.tfar.stellarfluidconduits.common.config.Config;
 import com.tfar.stellarfluidconduits.common.network.PacketHandler;
 import crazypants.enderio.api.addon.IEnderIOAddon;
+import crazypants.enderio.base.conduit.registry.ConduitRegistry;
 import crazypants.enderio.base.config.ConfigHandlerEIO;
 import crazypants.enderio.base.init.RegisterModObject;
 import info.loenwind.autoconfig.ConfigHandler;
@@ -25,7 +27,7 @@ import javax.annotation.Nullable;
 @Mod.EventBusSubscriber(modid = ReferenceVariables.MOD_ID)
 
 @Mod(modid = ReferenceVariables.MOD_ID, name = ReferenceVariables.MOD_NAME, version = ReferenceVariables.VERSION)
-public class Main implements IEnderIOAddon
+public class StellarConduit implements IEnderIOAddon
 {    @SidedProxy(serverSide = ReferenceVariables.PROXY_COMMON_CLASS, clientSide = ReferenceVariables.PROXY_CLIENT_CLASS)
 public static CommonProxy proxy;
 
@@ -35,10 +37,17 @@ public static CommonProxy proxy;
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
+
         logger = event.getModLog();
         configHandler = new ConfigHandlerEIO(event, Config.F);
         proxy.preInit(event);
+
+
+
+
     }
+
+
 
     @EventHandler
     public void init(FMLInitializationEvent event)

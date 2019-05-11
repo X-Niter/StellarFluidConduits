@@ -31,6 +31,10 @@ repositories {
         name = "CurseForge"
         url = "https://minecraft.curseforge.com/api/maven/"
     }
+    //endercore
+    maven {
+        url "http://maven.tterrag.com"
+    }
     maven {
         name = "EnderIO"
         url = "https://maven2.tterrag.com/"
@@ -48,14 +52,16 @@ repositories {
 }
 
 dependencies {
-    deobfCompile "endercore:EnderCore:${mc_version}:0.5.43"
-    deobfCompile "com.enderio:EnderIO:${mc_version}-5.0.39"
-    deobfCompile "mekanism:Mekanism:${mc_version}:9.4.13.349"
-    compile "info.loenwind.autoconfig:AutoConfig:${mc_version}-1.0.1"
+    deobfProvided "com.enderio.core:EnderCore:${mc_version}-${endercore_version}"
+    //compile "com.enderio.core:EnderCore:${endercore_version}:core"
+    deobfCompile("com.enderio:EnderIO:${mc_version}-5.0.44"){
+        transitive = false
+    }
+    compile "info.loenwind.autoconfig:AutoConfig:${mc_version}-1.0.2"
     // compile against the JEI API but do not include it at runtime
     deobfProvided "mezz.jei:jei_${mc_version}:${jei_version}:api"
     // at runtime, use the full JEI jar
-    runtime "mezz.jei:jei_${mc_version}:${jei_version}"
+    //runtime "mezz.jei:jei_${mc_version}:${jei_version}"
 }
 
 processResources {
