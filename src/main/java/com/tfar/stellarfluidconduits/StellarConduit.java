@@ -3,13 +3,17 @@ package com.tfar.stellarfluidconduits;
 import com.tfar.stellarfluidconduits.common.CommonProxy;
 import com.tfar.stellarfluidconduits.common.conduit.FluidConduitObject;
 import com.tfar.stellarfluidconduits.common.conduit.ItemStellarFluidConduit;
+import com.tfar.stellarfluidconduits.common.conduit.stellar.StellarFluidConduit;
 import com.tfar.stellarfluidconduits.common.config.Config;
 import com.tfar.stellarfluidconduits.common.network.PacketHandler;
 import crazypants.enderio.api.addon.IEnderIOAddon;
+import crazypants.enderio.base.EnderIO;
+import crazypants.enderio.base.conduit.registry.ConduitDefinition;
 import crazypants.enderio.base.conduit.registry.ConduitRegistry;
 import crazypants.enderio.base.config.ConfigHandlerEIO;
 import crazypants.enderio.base.init.RegisterModObject;
 import info.loenwind.autoconfig.ConfigHandler;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -23,6 +27,7 @@ import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.UUID;
 
 @Mod.EventBusSubscriber(modid = ReferenceVariables.MOD_ID)
 
@@ -53,11 +58,25 @@ public static CommonProxy proxy;
     public void init(FMLInitializationEvent event)
     {
         proxy.Init(event);
+
+
+
+
+
         PacketHandler.init(event);
     }
     @EventHandler
     public void postInit(FMLPostInitializationEvent event) {
         proxy.postInit(event);
+
+        ConduitRegistry.injectMember(new ConduitDefinition(ConduitRegistry.getNetwork(UUID.nameUUIDFromBytes(
+                (new ResourceLocation(EnderIO.DOMAIN, "fluid"))
+                        .toString().getBytes())),
+                UUID.nameUUIDFromBytes("Random UUID".getBytes()),
+                StellarFluidConduit.class,
+                StellarFluidConduit.class));
+
+
     }
 
     @EventHandler

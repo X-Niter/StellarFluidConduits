@@ -13,7 +13,6 @@ public class PacketHandler {
     public static int ID;
 
     public static void init(FMLInitializationEvent event) {
-        INSTANCE.registerMessage(PacketFluidFilter.Handler.class, PacketFluidFilter.class, ID++, Side.SERVER);
         INSTANCE.registerMessage(PacketStellarFluidConduit.Handler.class, PacketStellarFluidConduit.class, ID++, Side.SERVER);
     }
 }

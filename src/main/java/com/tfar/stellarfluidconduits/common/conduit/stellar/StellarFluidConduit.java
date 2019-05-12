@@ -185,7 +185,7 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
         } else {
             outputFilterUpgrades.put(dir, stack);
         }
-        setFilter(dir, FilterRegistry.<IFluidFilter> getFilterForUpgrade(stack), isInput);
+        setFilter(dir, FilterRegistry.getFilterForUpgrade(stack), isInput);
         setClientStateDirty();
     }
 
@@ -250,10 +250,7 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
         if (!super.canConnectToConduit(direction, con)) {
             return false;
         }
-        if (!(con instanceof StellarFluidConduit)) {
-            return false;
-        }
-        return true;
+        return con instanceof StellarFluidConduit;
     }
 
     @Override
@@ -384,7 +381,7 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
 
     private boolean isDefault(IFluidFilter f) {
         if (f instanceof FluidFilter) {
-            return ((FluidFilter) f).isDefault();
+            return f.isDefault();
         }
         return false;
     }
@@ -566,11 +563,8 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
 
     @Override
     public boolean hasInternalCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing) {
-        if (capability == CapabilityFilterHolder.FILTER_HOLDER_CAPABILITY
-                || capability == CapabilityUpgradeHolder.UPGRADE_HOLDER_CAPABILITY && containsExternalConnection(facing)) {
-            return true;
-        }
-        return false;
+        return capability == CapabilityFilterHolder.FILTER_HOLDER_CAPABILITY
+                || capability == CapabilityUpgradeHolder.UPGRADE_HOLDER_CAPABILITY && containsExternalConnection(facing);
     }
 
     // FILTERS
@@ -740,7 +734,7 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
             BoundingBox bb = ConduitGeometryUtil.getInstance().createBoundsForConnectionController(keydir, key.offset);
             CollidableComponent cc = new CollidableComponent(ILiquidConduit.class, bb, keydir, IPowerConduit.COLOR_CONTROLLER_ID);
 
-            List<CollidableComponent> result = new ArrayList<CollidableComponent>();
+            List<CollidableComponent> result = new ArrayList<>();
             result.addAll(baseCollidables);
             result.add(cc);
 

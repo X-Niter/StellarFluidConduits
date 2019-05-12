@@ -5,13 +5,8 @@ import com.tfar.stellarfluidconduits.common.conduit.stellar.StellarFluidConduit;
 import com.tfar.stellarfluidconduits.common.conduit.stellar.StellarFluidConduitRenderer;
 import com.tfar.stellarfluidconduits.common.config.StellarFluidConduitConfig;
 import crazypants.enderio.api.IModObject;
-import crazypants.enderio.base.EnderIO;
-import crazypants.enderio.base.conduit.ConduitDisplayMode;
 import crazypants.enderio.base.conduit.IConduit;
 import crazypants.enderio.base.conduit.IServerConduit;
-import crazypants.enderio.base.conduit.registry.ConduitDefinition;
-import crazypants.enderio.base.conduit.registry.ConduitRegistry;
-import crazypants.enderio.base.gui.IconEIO;
 import crazypants.enderio.conduits.conduit.AbstractItemConduit;
 import crazypants.enderio.conduits.conduit.ItemConduitSubtype;
 import crazypants.enderio.conduits.conduit.liquid.ILiquidConduit;
@@ -19,7 +14,6 @@ import crazypants.enderio.conduits.render.ConduitBundleRenderManager;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -27,7 +21,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.UUID;
 
 public class ItemStellarFluidConduit extends AbstractItemConduit implements IAdvancedTooltipProvider {
 
@@ -38,16 +31,6 @@ public class ItemStellarFluidConduit extends AbstractItemConduit implements IAdv
 
   public ItemStellarFluidConduit(@Nonnull IModObject modObject) {
     super(modObject, new ItemConduitSubtype(modObject.getUnlocalisedName(), modObject.getRegistryName().toString()));
-
-    ConduitRegistry.injectMember(new ConduitDefinition(ConduitRegistry.get(UUID.nameUUIDFromBytes(
-            (new ResourceLocation(EnderIO.DOMAIN, "fluid"))
-                    .toString().getBytes())).getNetwork(), UUID.nameUUIDFromBytes("Random UUID".getBytes()),
-            StellarFluidConduit.class, StellarFluidConduit.class));
-
-
-    ConduitDisplayMode.registerDisplayMode(new ConduitDisplayMode(getBaseConduitType(), IconEIO.WRENCH_OVERLAY_FLUID, IconEIO.WRENCH_OVERLAY_FLUID_OFF));
-
-
   }
 
 

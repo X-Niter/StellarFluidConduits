@@ -4,7 +4,6 @@ import com.enderio.core.common.util.NullHelper;
 import crazypants.enderio.api.IModObject;
 import crazypants.enderio.api.IModTileEntity;
 import crazypants.enderio.base.EnderIOTab;
- import crazypants.enderio.base.filter.fluid.items.ItemFluidFilter;
  import crazypants.enderio.base.init.IModObjectBase;
 import crazypants.enderio.base.init.ModObjectRegistry;
 import crazypants.enderio.base.init.RegisterModObject;
@@ -20,7 +19,6 @@ import java.util.function.Function;
 
 public enum FluidConduitObject implements IModObjectBase {
     itemFluidConduit(ItemStellarFluidConduit::create),
-    itemFluidFilter(ItemFluidFilter::create);
 ;
     public static void registerBlocksEarly(@Nonnull RegisterModObject event) {
         event.register(FluidConduitObject.class);
