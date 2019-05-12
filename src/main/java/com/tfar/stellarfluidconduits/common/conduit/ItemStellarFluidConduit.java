@@ -41,7 +41,8 @@ public class ItemStellarFluidConduit extends AbstractItemConduit implements IAdv
 
     ConduitRegistry.injectMember(new ConduitDefinition(ConduitRegistry.get(UUID.nameUUIDFromBytes(
             (new ResourceLocation(EnderIO.DOMAIN, "fluid"))
-                    .toString().getBytes())).getNetwork(), UUID.nameUUIDFromBytes("whatever you like".getBytes()), StellarFluidConduit.class, StellarFluidConduit.class));
+                    .toString().getBytes())).getNetwork(), UUID.nameUUIDFromBytes("Random UUID".getBytes()),
+            StellarFluidConduit.class, StellarFluidConduit.class));
 
 
     ConduitDisplayMode.registerDisplayMode(new ConduitDisplayMode(getBaseConduitType(), IconEIO.WRENCH_OVERLAY_FLUID, IconEIO.WRENCH_OVERLAY_FLUID_OFF));
