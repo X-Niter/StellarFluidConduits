@@ -5,8 +5,9 @@ import crazypants.enderio.base.conduit.IConduit;
 import crazypants.enderio.base.conduit.IConduitBundle;
 import crazypants.enderio.base.conduit.IConduitTexture;
 import crazypants.enderio.base.conduit.geom.CollidableComponent;
+import crazypants.enderio.conduits.conduit.liquid.EnderLiquidConduitNetwork;
+import crazypants.enderio.conduits.conduit.liquid.EnderLiquidConduitRenderer;
 import crazypants.enderio.conduits.render.ConduitInOutRenderer;
-import crazypants.enderio.conduits.render.DefaultConduitRenderer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
@@ -14,7 +15,7 @@ import net.minecraft.util.EnumFacing;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public class StellarFluidConduitRenderer extends DefaultConduitRenderer {
+public class StellarFluidConduitRenderer extends EnderLiquidConduitRenderer {
 
 
     @Override

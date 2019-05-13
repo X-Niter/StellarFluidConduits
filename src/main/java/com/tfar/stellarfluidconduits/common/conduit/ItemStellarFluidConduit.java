@@ -1,6 +1,7 @@
 package com.tfar.stellarfluidconduits.common.conduit;
 
 import com.enderio.core.api.client.gui.IAdvancedTooltipProvider;
+import com.enderio.core.client.handlers.SpecialTooltipHandler;
 import com.tfar.stellarfluidconduits.common.conduit.stellar.StellarFluidConduit;
 import com.tfar.stellarfluidconduits.common.conduit.stellar.StellarFluidConduitRenderer;
 import com.tfar.stellarfluidconduits.common.config.StellarFluidConduitConfig;
@@ -71,6 +72,8 @@ public class ItemStellarFluidConduit extends AbstractItemConduit implements IAdv
     String mbt = new TextComponentTranslation("stellarfluidconduits.fluid.millibuckets_tick").getUnformattedComponentText();
     list.add(new TextComponentTranslation("stellarfluidconduits.item_fluid_conduit.tooltip.max_extract").getUnformattedComponentText() + " " + extractRate + mbt);
     list.add(new TextComponentTranslation("stellarfluidconduits.item_fluid_conduit.tooltip.max_io").getUnformattedComponentText() + " " + maxIo + mbt);
+    SpecialTooltipHandler.addDetailedTooltipFromResources(list, "enderio.item_liquid_conduit_ender");
+
 
   }
 

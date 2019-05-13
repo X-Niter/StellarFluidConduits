@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "III",
+    "igi",
+    "III"
+  ],
+  "key": {
+    "g":{
+      "type": "forge:ore_dict",
+      "ore": "blockGlassHardened"
+    },
+    "i": {
+      "type": "forge:ore_dict",
+      "ore": "ingotStellarAlloy"
+    },
+
+    "I": {
+      "type": "forge:ore_dict",
+      "ore": "itemConduitBinder"
+    }
+  },
+  "result": {
+    "item": "enderio:item_fluid_conduit",
+    "data" : 0,
+    "count": 16
+  }
+}

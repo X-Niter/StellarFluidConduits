@@ -5,6 +5,7 @@ import com.enderio.core.client.render.IconUtil;
 import com.enderio.core.common.util.DyeColor;
 import com.enderio.core.common.util.NNList;
 import com.enderio.core.common.vecmath.Vector4f;
+import com.tfar.stellarfluidconduits.StellarConduit;
 import com.tfar.stellarfluidconduits.common.conduit.FluidConduitObject;
 import crazypants.enderio.base.conduit.*;
 import crazypants.enderio.base.conduit.geom.CollidableCache;
@@ -12,7 +13,6 @@ import crazypants.enderio.base.conduit.geom.CollidableComponent;
 import crazypants.enderio.base.conduit.geom.ConduitGeometryUtil;
 import crazypants.enderio.base.filter.FilterRegistry;
 import crazypants.enderio.base.filter.capability.CapabilityFilterHolder;
-import crazypants.enderio.base.filter.capability.IFilterHolder;
 import crazypants.enderio.base.filter.fluid.FluidFilter;
 import crazypants.enderio.base.filter.fluid.IFluidFilter;
 import crazypants.enderio.base.filter.fluid.items.IItemFilterFluidUpgrade;
@@ -21,10 +21,9 @@ import crazypants.enderio.base.machine.modes.RedstoneControlMode;
 import crazypants.enderio.base.render.registry.TextureRegistry;
 import crazypants.enderio.base.tool.ToolUtil;
 import crazypants.enderio.conduits.capability.CapabilityUpgradeHolder;
-import crazypants.enderio.conduits.capability.IUpgradeHolder;
-import crazypants.enderio.conduits.conduit.IEnderConduit;
 import crazypants.enderio.conduits.conduit.item.ItemConduit;
-import crazypants.enderio.conduits.conduit.liquid.AbstractLiquidConduit;
+import crazypants.enderio.conduits.conduit.liquid.EnderLiquidConduit;
+import crazypants.enderio.conduits.conduit.liquid.EnderLiquidConduitNetwork;
 import crazypants.enderio.conduits.conduit.liquid.ILiquidConduit;
 import crazypants.enderio.conduits.conduit.power.IPowerConduit;
 import crazypants.enderio.conduits.conduit.power.PowerConduit;
@@ -35,6 +34,7 @@ import crazypants.enderio.util.Prep;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
@@ -50,10 +50,13 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.Map.Entry;
 
-public class StellarFluidConduit extends AbstractLiquidConduit implements IFilterHolder<IFluidFilter>, IUpgradeHolder, IEnderConduit {
+public class StellarFluidConduit extends EnderLiquidConduit  {
 
-    public static final IConduitTexture ICON_KEY = new ConduitTexture(TextureRegistry.registerTexture("stellarfluidconduits:blocks/liquid_conduit"), ConduitTexture.arm(3));
-    public static final IConduitTexture ICON_CORE_KEY = new ConduitTexture(TextureRegistry.registerTexture("stellarfluidconduits:blocks/conduit_core_1"), ConduitTexture.core(2));
+  //  public static final TextureRegistry.TextureSupplier ICON_KEY = TextureRegistry.registerTexture("stellarfluidconduits:blocks/liquid_conduit",false);
+  //  public static final TextureRegistry.TextureSupplier ICON_CORE_KEY = TextureRegistry.registerTexture("stellarfluidconduits:blocks/conduit_core",false);
+
+
+
 
     private StellarFluidConduitNetwork network;
     private int ticksSinceFailedExtract;
@@ -216,12 +219,12 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
     @Nonnull
     public IConduitTexture getTextureForState(@Nonnull CollidableComponent component) {
         if (component.isCore()) {
-            return ICON_CORE_KEY;
+            return StellarConduit.ICON_CORE_KEY;
         }
         if (PowerConduit.COLOR_CONTROLLER_ID.equals(component.data)) {
             return new ConduitTextureWrapper(IconUtil.instance.whiteTexture);
         }
-        return ICON_KEY;
+        return StellarConduit.ICON_KEY;
     }
 
     @Override
@@ -251,6 +254,34 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
             return false;
         }
         return con instanceof StellarFluidConduit;
+    }
+
+    @Override
+    public void onAddedToBundle() {
+
+        TileEntity te = getBundle().getEntity();
+        World world = te.getWorld();
+
+        conduitConnections.clear();
+        for (NNList.NNIterator<EnumFacing> itr = NNList.FACING.fastIterator(); itr.hasNext();) {
+            EnumFacing dir = itr.next();
+            IConduit neighbour = ConduitUtil.getConduit(world, te, dir, getBaseConduitType());
+            if (neighbour instanceof IServerConduit && ((IServerConduit) neighbour).canConnectToConduit(dir.getOpposite(), this)  && this.canConnectToConduit(dir, neighbour) ) {
+                conduitConnections.add(dir);
+                ((IServerConduit) neighbour).conduitConnectionAdded(dir.getOpposite());
+                ((IServerConduit) neighbour).connectionsChanged();
+            }
+        }
+
+        externalConnections.clear();
+        for (NNList.NNIterator<EnumFacing> itr = NNList.FACING.fastIterator(); itr.hasNext();) {
+            EnumFacing dir = itr.next();
+            if (!containsConduitConnection(dir) && canConnectToExternal(dir, false)) {
+                externalConnectionAdded(dir);
+            }
+        }
+
+        connectionsChanged();
     }
 
     @Override
@@ -557,7 +588,7 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
 
     @Override
     @Nonnull
-    public StellarFluidConduitNetwork createNetworkForType() {
+    public EnderLiquidConduitNetwork createNetworkForType() {
         return new StellarFluidConduitNetwork();
     }
 

@@ -1,6 +1,6 @@
 {
-    "parent": "enderio:item/item_conduit_base_0",
+    "parent": "enderio:item/item_conduit_base",
     "textures": {        
-        "all": "stellarfluidconduits:blocks/gas_conduit_core"
+        "all": "stellarfluidconduits:blocks/conduit_core_1"
     }
 }

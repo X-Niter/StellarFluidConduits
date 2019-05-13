@@ -8,10 +8,13 @@ import com.tfar.stellarfluidconduits.common.config.Config;
 import com.tfar.stellarfluidconduits.common.network.PacketHandler;
 import crazypants.enderio.api.addon.IEnderIOAddon;
 import crazypants.enderio.base.EnderIO;
+import crazypants.enderio.base.conduit.IConduitTexture;
 import crazypants.enderio.base.conduit.registry.ConduitDefinition;
 import crazypants.enderio.base.conduit.registry.ConduitRegistry;
 import crazypants.enderio.base.config.ConfigHandlerEIO;
 import crazypants.enderio.base.init.RegisterModObject;
+import crazypants.enderio.base.render.registry.TextureRegistry;
+import crazypants.enderio.conduits.render.ConduitTexture;
 import info.loenwind.autoconfig.ConfigHandler;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;
@@ -31,9 +34,18 @@ import java.util.UUID;
 
 @Mod.EventBusSubscriber(modid = ReferenceVariables.MOD_ID)
 
-@Mod(modid = ReferenceVariables.MOD_ID, name = ReferenceVariables.MOD_NAME, version = ReferenceVariables.VERSION)
-public class StellarConduit implements IEnderIOAddon
-{    @SidedProxy(serverSide = ReferenceVariables.PROXY_COMMON_CLASS, clientSide = ReferenceVariables.PROXY_CLIENT_CLASS)
+@Mod(modid = ReferenceVariables.MOD_ID, name = ReferenceVariables.MOD_NAME, version = ReferenceVariables.VERSION, dependencies = ReferenceVariables.DEPENDENCIES)
+public class StellarConduit implements IEnderIOAddon{
+
+        public static final IConduitTexture ICON_KEY = new ConduitTexture(
+                TextureRegistry.registerTexture("stellarfluidconduits:blocks/liquid_conduit", false), ConduitTexture.arm(0));
+        public static final IConduitTexture ICON_CORE_KEY = new ConduitTexture(
+                TextureRegistry.registerTexture("stellarfluidconduits:blocks/conduit_core_1", false), ConduitTexture.core());
+
+
+
+
+   @SidedProxy(serverSide = ReferenceVariables.PROXY_COMMON_CLASS, clientSide = ReferenceVariables.PROXY_CLIENT_CLASS)
 public static CommonProxy proxy;
 
     public static Logger logger;
@@ -42,6 +54,10 @@ public static CommonProxy proxy;
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
+
+
+
+
 
         logger = event.getModLog();
         configHandler = new ConfigHandlerEIO(event, Config.F);
@@ -60,7 +76,12 @@ public static CommonProxy proxy;
         proxy.Init(event);
 
 
-
+        ConduitRegistry.injectMember(new ConduitDefinition(ConduitRegistry.getNetwork(UUID.nameUUIDFromBytes(
+                (new ResourceLocation(EnderIO.DOMAIN, "fluid"))
+                        .toString().getBytes())),
+                UUID.nameUUIDFromBytes("Random UUID".getBytes()),
+                StellarFluidConduit.class,
+                StellarFluidConduit.class));
 
 
         PacketHandler.init(event);
@@ -69,12 +90,6 @@ public static CommonProxy proxy;
     public void postInit(FMLPostInitializationEvent event) {
         proxy.postInit(event);
 
-        ConduitRegistry.injectMember(new ConduitDefinition(ConduitRegistry.getNetwork(UUID.nameUUIDFromBytes(
-                (new ResourceLocation(EnderIO.DOMAIN, "fluid"))
-                        .toString().getBytes())),
-                UUID.nameUUIDFromBytes("Random UUID".getBytes()),
-                StellarFluidConduit.class,
-                StellarFluidConduit.class));
 
 
     }

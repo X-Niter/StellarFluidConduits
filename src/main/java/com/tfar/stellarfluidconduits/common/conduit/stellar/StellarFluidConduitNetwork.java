@@ -7,6 +7,7 @@ import com.enderio.core.common.fluid.IFluidWrapper;
 import com.enderio.core.common.util.RoundRobinIterator;
 import crazypants.enderio.base.filter.fluid.IFluidFilter;
 import crazypants.enderio.conduits.conduit.AbstractConduitNetwork;
+import crazypants.enderio.conduits.conduit.liquid.EnderLiquidConduitNetwork;
 import crazypants.enderio.conduits.conduit.liquid.ILiquidConduit;
 
 import com.tfar.stellarfluidconduits.common.conduit.NetworkTank;
@@ -21,7 +22,7 @@ import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import javax.annotation.Nonnull;
 import java.util.*;
 
-public class StellarFluidConduitNetwork extends AbstractConduitNetwork<ILiquidConduit, StellarFluidConduit>{
+public class StellarFluidConduitNetwork extends EnderLiquidConduitNetwork{
     List<NetworkTank> tanks = new ArrayList<>();
     Map<NetworkTankKey, NetworkTank> tankMap = new HashMap<>();
 
@@ -30,7 +31,7 @@ public class StellarFluidConduitNetwork extends AbstractConduitNetwork<ILiquidCo
     boolean filling;
 
     public StellarFluidConduitNetwork() {
-        super(StellarFluidConduit.class, ILiquidConduit.class);
+      //  super(StellarFluidConduit.class, ILiquidConduit.class);
     }
 
     public void connectionChanged(@Nonnull StellarFluidConduit con, @Nonnull EnumFacing conDir) {
