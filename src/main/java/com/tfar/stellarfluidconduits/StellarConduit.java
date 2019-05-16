@@ -1,8 +1,6 @@
 package com.tfar.stellarfluidconduits;
 
-import com.tfar.stellarfluidconduits.common.CommonProxy;
 import com.tfar.stellarfluidconduits.common.conduit.FluidConduitObject;
-import com.tfar.stellarfluidconduits.common.conduit.ItemStellarFluidConduit;
 import com.tfar.stellarfluidconduits.common.conduit.stellar.StellarFluidConduit;
 import com.tfar.stellarfluidconduits.common.config.Config;
 import com.tfar.stellarfluidconduits.common.network.PacketHandler;
@@ -20,7 +18,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -45,8 +42,6 @@ public class StellarConduit implements IEnderIOAddon{
 
 
 
-   @SidedProxy(serverSide = ReferenceVariables.PROXY_COMMON_CLASS, clientSide = ReferenceVariables.PROXY_CLIENT_CLASS)
-public static CommonProxy proxy;
 
     public static Logger logger;
 
@@ -61,7 +56,6 @@ public static CommonProxy proxy;
 
         logger = event.getModLog();
         configHandler = new ConfigHandlerEIO(event, Config.F);
-        proxy.preInit(event);
 
 
 
@@ -73,9 +67,6 @@ public static CommonProxy proxy;
     @EventHandler
     public void init(FMLInitializationEvent event)
     {
-        proxy.Init(event);
-
-
         ConduitRegistry.injectMember(new ConduitDefinition(ConduitRegistry.getNetwork(UUID.nameUUIDFromBytes(
                 (new ResourceLocation(EnderIO.DOMAIN, "fluid"))
                         .toString().getBytes())),
@@ -88,15 +79,10 @@ public static CommonProxy proxy;
     }
     @EventHandler
     public void postInit(FMLPostInitializationEvent event) {
-        proxy.postInit(event);
-
-
-
     }
 
     @EventHandler
     public void serverStart(FMLServerStartingEvent event) {
-        proxy.serverStart(event);
     }
 
     @SubscribeEvent

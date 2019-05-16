@@ -1,17 +1,16 @@
 package com.tfar.stellarfluidconduits.common.conduit.stellar;
 
+import com.enderio.core.common.fluid.IFluidWrapper;
+import com.tfar.stellarfluidconduits.common.config.StellarFluidConduitConfig;
 import crazypants.enderio.base.conduit.item.FunctionUpgrade;
 import crazypants.enderio.base.conduit.item.ItemFunctionUpgrade;
 
-import com.enderio.core.common.fluid.IFluidWrapper;
 import com.enderio.core.common.util.RoundRobinIterator;
 import crazypants.enderio.base.filter.fluid.IFluidFilter;
 import crazypants.enderio.conduits.conduit.AbstractConduitNetwork;
-import crazypants.enderio.conduits.conduit.liquid.EnderLiquidConduitNetwork;
 import crazypants.enderio.conduits.conduit.liquid.ILiquidConduit;
 
 import com.tfar.stellarfluidconduits.common.conduit.NetworkTank;
-import com.tfar.stellarfluidconduits.common.config.StellarFluidConduitConfig;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
@@ -22,45 +21,29 @@ import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import javax.annotation.Nonnull;
 import java.util.*;
 
-public class StellarFluidConduitNetwork extends EnderLiquidConduitNetwork{
-    List<NetworkTank> tanks = new ArrayList<>();
-    Map<NetworkTankKey, NetworkTank> tankMap = new HashMap<>();
+public class StellarFluidConduitNetwork extends AbstractConduitNetwork<ILiquidConduit, StellarFluidConduit> {
+
+    List<NetworkTank> tanks = new ArrayList<NetworkTank>();
+    Map<NetworkTankKey, NetworkTank> tankMap = new HashMap<NetworkTankKey, NetworkTank>();
 
     Map<NetworkTank, RoundRobinIterator<NetworkTank>> iterators;
 
     boolean filling;
 
     public StellarFluidConduitNetwork() {
-      //  super(StellarFluidConduit.class, ILiquidConduit.class);
+        super(StellarFluidConduit.class, ILiquidConduit.class);
     }
 
     public void connectionChanged(@Nonnull StellarFluidConduit con, @Nonnull EnumFacing conDir) {
         NetworkTankKey key = new NetworkTankKey(con, conDir);
         NetworkTank tank = new NetworkTank(con, conDir);
 
-        // Check for later
-        boolean sort = false;
-        NetworkTank oldTank = tankMap.get(key);
-        if (oldTank != null && oldTank.getPriority() != tank.getPriority()) {
-            sort = true;
-        }
-
         tanks.remove(tank); // remove old tank, NB: =/hash is only calced on location and dir
-        tankMap.remove(key);
         tanks.add(tank);
+        tankMap.remove(key);
         tankMap.put(key, tank);
 
-        // If the priority has been changed, then sort the list to match
-        if (sort) {
-            tanks.sort(new Comparator<NetworkTank>() {
-
-                @Override
-                public int compare(NetworkTank arg0, NetworkTank arg1) {
-                    return arg1.getPriority() - arg0.getPriority();
-                }
-
-            });
-        }
+        tanks.sort((left, right) -> right.priority - left.priority);
     }
 
     public boolean extractFrom(@Nonnull StellarFluidConduit con, @Nonnull EnumFacing conDir) {
@@ -68,7 +51,7 @@ public class StellarFluidConduitNetwork extends EnderLiquidConduitNetwork{
         if (!tank.isValid()) {
             return false;
         }
-        FluidStack drained = tank.getExternalTank().getAvailableFluid();
+        FluidStack drained = tank.externalTank.getAvailableFluid();
         if (drained == null || drained.amount <= 0 || !matchedFilter(drained, con, conDir, true)) {
             return false;
         }
@@ -80,12 +63,12 @@ public class StellarFluidConduitNetwork extends EnderLiquidConduitNetwork{
             return false;
         }
         drained.amount = amountAccepted;
-        drained = tank.getExternalTank().drain(drained);
+        drained = tank.externalTank.drain(drained);
         if (drained == null || drained.amount <= 0) {
             return false;
         }
         // if(drained.amount != amountAccepted) {
-        // Log.warn("StellarFluidConduit.extractFrom: Extracted fluid volume is not equal to inserted volume. Drained=" + drained.amount + " filled="
+        // Log.warn("EnderLiquidConduit.extractFrom: Extracted fluid volume is not equal to inserted volume. Drained=" + drained.amount + " filled="
         // + amountAccepted + " Fluid: " + drained + " Accepted=" + amountAccepted);
         // }
         return true;
@@ -110,20 +93,20 @@ public class StellarFluidConduitNetwork extends EnderLiquidConduitNetwork{
 
             filling = true;
 
-            if (resource == null || !matchedFilter(resource, tank.getConduit(), tank.getConduitDir(), true)) {
+            if (resource == null || !matchedFilter(resource, tank.con, tank.conDir, true)) {
                 return 0;
             }
 
             resource = resource.copy();
-            resource.amount = Math.min(resource.amount, StellarFluidConduitConfig.maxIO.get() * getExtractSpeedMultiplier(tank) / 2);
+            resource.amount = Math.min(resource.amount, StellarFluidConduitConfig.extractRate.get() * getExtractSpeedMultiplier(tank) / 2);
             int filled = 0;
             int remaining = resource.amount;
             // TODO: Only change starting pos of iterator is doFill is true so a false then true returns the same
 
             for (NetworkTank target : getIteratorForTank(tank)) {
-                if ((!target.equals(tank) || tank.isSelfFeed()) && target.acceptsOutput() && target.isValid() && target.getInputColor() == tank.getOutputColor()
-                        && matchedFilter(resource, target.getConduit(), target.getConduitDir(), false)) {
-                    int vol = doFill ? target.getExternalTank().fill(resource.copy()) : target.getExternalTank().offer(resource.copy());
+                if ((!target.equals(tank) || tank.selfFeed) && target.acceptsOuput && target.isValid() && target.inputColor == tank.outputColor
+                        && matchedFilter(resource, target.con, target.conDir, false)) {
+                    int vol = doFill ? target.externalTank.fill(resource.copy()) : target.externalTank.offer(resource.copy());
                     remaining -= vol;
                     filled += vol;
                     if (remaining <= 0) {
@@ -135,7 +118,7 @@ public class StellarFluidConduitNetwork extends EnderLiquidConduitNetwork{
             return filled;
 
         } finally {
-            if (!tank.isRoundRobin()) {
+            if (!tank.roundRobin) {
                 getIteratorForTank(tank).reset();
             }
             filling = false;
@@ -145,7 +128,7 @@ public class StellarFluidConduitNetwork extends EnderLiquidConduitNetwork{
     private int getExtractSpeedMultiplier(NetworkTank tank) {
         int extractSpeedMultiplier = 2;
 
-        ItemStack upgradeStack = tank.getConduit().getFunctionUpgrade(tank.getConduitDir());
+        ItemStack upgradeStack = tank.con.getFunctionUpgrade(tank.conDir);
         if (!upgradeStack.isEmpty()) {
             FunctionUpgrade upgrade = ItemFunctionUpgrade.getFunctionUpgrade(upgradeStack);
             if (upgrade == FunctionUpgrade.EXTRACT_SPEED_UPGRADE) {
@@ -157,6 +140,7 @@ public class StellarFluidConduitNetwork extends EnderLiquidConduitNetwork{
 
         return extractSpeedMultiplier;
     }
+
     private boolean matchedFilter(FluidStack drained, @Nonnull StellarFluidConduit con, @Nonnull EnumFacing conDir, boolean isInput) {
         if (drained == null) {
             return false;
@@ -185,7 +169,7 @@ public class StellarFluidConduitNetwork extends EnderLiquidConduitNetwork{
         NetworkTank tank = getTank(con, conDir);
         for (NetworkTank target : tanks) {
             if (!target.equals(tank) && target.isValid()) {
-                for (IFluidWrapper.ITankInfoWrapper info : target.getExternalTank().getTankInfoWrappers()) {
+                for (IFluidWrapper.ITankInfoWrapper info : target.externalTank.getTankInfoWrappers()) {
                     res.add(info.getIFluidTankProperties());
                 }
             }

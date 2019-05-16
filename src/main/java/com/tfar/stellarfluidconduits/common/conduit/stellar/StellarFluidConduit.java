@@ -1,11 +1,12 @@
 package com.tfar.stellarfluidconduits.common.conduit.stellar;
 
+import com.enderio.core.api.client.gui.ITabPanel;
 import com.enderio.core.client.render.BoundingBox;
 import com.enderio.core.client.render.IconUtil;
 import com.enderio.core.common.util.DyeColor;
 import com.enderio.core.common.util.NNList;
 import com.enderio.core.common.vecmath.Vector4f;
-import com.tfar.stellarfluidconduits.StellarConduit;
+import com.tfar.stellarfluidconduits.client.FluidSettings;
 import com.tfar.stellarfluidconduits.common.conduit.FluidConduitObject;
 import crazypants.enderio.base.conduit.*;
 import crazypants.enderio.base.conduit.geom.CollidableCache;
@@ -13,34 +14,34 @@ import crazypants.enderio.base.conduit.geom.CollidableComponent;
 import crazypants.enderio.base.conduit.geom.ConduitGeometryUtil;
 import crazypants.enderio.base.filter.FilterRegistry;
 import crazypants.enderio.base.filter.capability.CapabilityFilterHolder;
+import crazypants.enderio.base.filter.capability.IFilterHolder;
 import crazypants.enderio.base.filter.fluid.FluidFilter;
 import crazypants.enderio.base.filter.fluid.IFluidFilter;
 import crazypants.enderio.base.filter.fluid.items.IItemFilterFluidUpgrade;
 import crazypants.enderio.base.filter.gui.FilterGuiUtil;
 import crazypants.enderio.base.machine.modes.RedstoneControlMode;
-import crazypants.enderio.base.render.registry.TextureRegistry;
 import crazypants.enderio.base.tool.ToolUtil;
 import crazypants.enderio.conduits.capability.CapabilityUpgradeHolder;
+import crazypants.enderio.conduits.capability.IUpgradeHolder;
+import crazypants.enderio.conduits.conduit.IEnderConduit;
 import crazypants.enderio.conduits.conduit.item.ItemConduit;
-import crazypants.enderio.conduits.conduit.liquid.EnderLiquidConduit;
-import crazypants.enderio.conduits.conduit.liquid.EnderLiquidConduitNetwork;
+import crazypants.enderio.conduits.conduit.liquid.AbstractLiquidConduit;
 import crazypants.enderio.conduits.conduit.liquid.ILiquidConduit;
 import crazypants.enderio.conduits.conduit.power.IPowerConduit;
 import crazypants.enderio.conduits.conduit.power.PowerConduit;
 import crazypants.enderio.conduits.render.BlockStateWrapperConduitBundle;
-import crazypants.enderio.conduits.render.ConduitTexture;
 import crazypants.enderio.conduits.render.ConduitTextureWrapper;
 import crazypants.enderio.util.Prep;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fluids.capability.FluidTankProperties;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -50,46 +51,34 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.Map.Entry;
 
-public class StellarFluidConduit extends EnderLiquidConduit  {
+import static com.tfar.stellarfluidconduits.StellarConduit.ICON_CORE_KEY;
+import static com.tfar.stellarfluidconduits.StellarConduit.ICON_KEY;
 
-  //  public static final TextureRegistry.TextureSupplier ICON_KEY = TextureRegistry.registerTexture("stellarfluidconduits:blocks/liquid_conduit",false);
-  //  public static final TextureRegistry.TextureSupplier ICON_CORE_KEY = TextureRegistry.registerTexture("stellarfluidconduits:blocks/conduit_core",false);
-
-
+public class StellarFluidConduit extends AbstractLiquidConduit implements IFilterHolder<IFluidFilter>, IUpgradeHolder, IEnderConduit  {
 
 
     private StellarFluidConduitNetwork network;
     private int ticksSinceFailedExtract;
 
-    private final @Nonnull
-    EnumMap<EnumFacing, IFluidFilter> outputFilters = new EnumMap<EnumFacing, IFluidFilter>(EnumFacing.class);
-    private final @Nonnull
-    EnumMap<EnumFacing, IFluidFilter> inputFilters = new EnumMap<EnumFacing, IFluidFilter>(EnumFacing.class);
-    private final @Nonnull
-    EnumMap<EnumFacing, ItemStack> outputFilterUpgrades = new EnumMap<EnumFacing, ItemStack>(EnumFacing.class);
-    private final @Nonnull
-    EnumMap<EnumFacing, ItemStack> inputFilterUpgrades = new EnumMap<EnumFacing, ItemStack>(EnumFacing.class);
+    private final @Nonnull EnumMap<EnumFacing, IFluidFilter> outputFilters = new EnumMap<EnumFacing, IFluidFilter>(EnumFacing.class);
+    private final @Nonnull EnumMap<EnumFacing, IFluidFilter> inputFilters = new EnumMap<EnumFacing, IFluidFilter>(EnumFacing.class);
+    private final @Nonnull EnumMap<EnumFacing, ItemStack> outputFilterUpgrades = new EnumMap<EnumFacing, ItemStack>(EnumFacing.class);
+    private final @Nonnull EnumMap<EnumFacing, ItemStack> inputFilterUpgrades = new EnumMap<EnumFacing, ItemStack>(EnumFacing.class);
 
-    private final @Nonnull
-    EnumMap<EnumFacing, DyeColor> inputColors = new EnumMap<EnumFacing, DyeColor>(EnumFacing.class);
-    private final @Nonnull
-    EnumMap<EnumFacing, DyeColor> outputColors = new EnumMap<EnumFacing, DyeColor>(EnumFacing.class);
+    private final @Nonnull EnumMap<EnumFacing, DyeColor> inputColors = new EnumMap<EnumFacing, DyeColor>(EnumFacing.class);
+    private final @Nonnull EnumMap<EnumFacing, DyeColor> outputColors = new EnumMap<EnumFacing, DyeColor>(EnumFacing.class);
 
-    protected final @Nonnull
-    EnumMap<EnumFacing, Integer> priorities = new EnumMap<EnumFacing, Integer>(EnumFacing.class);
+    protected final @Nonnull EnumMap<EnumFacing, Integer> priorities = new EnumMap<EnumFacing, Integer>(EnumFacing.class);
 
-    protected final @Nonnull
-    EnumMap<EnumFacing, Boolean> roundRobin = new EnumMap<EnumFacing, Boolean>(EnumFacing.class);
+    protected final @Nonnull EnumMap<EnumFacing, Boolean> roundRobin = new EnumMap<EnumFacing, Boolean>(EnumFacing.class);
 
-    protected final @Nonnull
-    EnumMap<EnumFacing, Boolean> selfFeed = new EnumMap<EnumFacing, Boolean>(EnumFacing.class);
+    protected final @Nonnull EnumMap<EnumFacing, Boolean> selfFeed = new EnumMap<EnumFacing, Boolean>(EnumFacing.class);
 
-    protected final @Nonnull
-    EnumMap<EnumFacing, ItemStack> functionUpgrades = new EnumMap<EnumFacing, ItemStack>(EnumFacing.class);
+    protected final @Nonnull EnumMap<EnumFacing, ItemStack> functionUpgrades = new EnumMap<EnumFacing, ItemStack>(EnumFacing.class);
 
     public StellarFluidConduit() {
         super();
-        for (NNList.NNIterator<EnumFacing> itr = NNList.FACING.fastIterator(); itr.hasNext(); ) {
+        for (NNList.NNIterator<EnumFacing> itr = NNList.FACING.fastIterator(); itr.hasNext();) {
             EnumFacing dir = itr.next();
             outputFilterUpgrades.put(dir, ItemStack.EMPTY);
             inputFilterUpgrades.put(dir, ItemStack.EMPTY);
@@ -188,7 +177,7 @@ public class StellarFluidConduit extends EnderLiquidConduit  {
         } else {
             outputFilterUpgrades.put(dir, stack);
         }
-        setFilter(dir, FilterRegistry.getFilterForUpgrade(stack), isInput);
+        setFilter(dir, FilterRegistry.<IFluidFilter> getFilterForUpgrade(stack), isInput);
         setClientStateDirty();
     }
 
@@ -219,12 +208,12 @@ public class StellarFluidConduit extends EnderLiquidConduit  {
     @Nonnull
     public IConduitTexture getTextureForState(@Nonnull CollidableComponent component) {
         if (component.isCore()) {
-            return StellarConduit.ICON_CORE_KEY;
+            return ICON_CORE_KEY;
         }
         if (PowerConduit.COLOR_CONTROLLER_ID.equals(component.data)) {
             return new ConduitTextureWrapper(IconUtil.instance.whiteTexture);
         }
-        return StellarConduit.ICON_KEY;
+        return ICON_KEY;
     }
 
     @Override
@@ -253,35 +242,10 @@ public class StellarFluidConduit extends EnderLiquidConduit  {
         if (!super.canConnectToConduit(direction, con)) {
             return false;
         }
-        return con instanceof StellarFluidConduit;
-    }
-
-    @Override
-    public void onAddedToBundle() {
-
-        TileEntity te = getBundle().getEntity();
-        World world = te.getWorld();
-
-        conduitConnections.clear();
-        for (NNList.NNIterator<EnumFacing> itr = NNList.FACING.fastIterator(); itr.hasNext();) {
-            EnumFacing dir = itr.next();
-            IConduit neighbour = ConduitUtil.getConduit(world, te, dir, getBaseConduitType());
-            if (neighbour instanceof IServerConduit && ((IServerConduit) neighbour).canConnectToConduit(dir.getOpposite(), this)  && this.canConnectToConduit(dir, neighbour) ) {
-                conduitConnections.add(dir);
-                ((IServerConduit) neighbour).conduitConnectionAdded(dir.getOpposite());
-                ((IServerConduit) neighbour).connectionsChanged();
-            }
+        if (!(con instanceof StellarFluidConduit)) {
+            return false;
         }
-
-        externalConnections.clear();
-        for (NNList.NNIterator<EnumFacing> itr = NNList.FACING.fastIterator(); itr.hasNext();) {
-            EnumFacing dir = itr.next();
-            if (!containsConduitConnection(dir) && canConnectToExternal(dir, false)) {
-                externalConnectionAdded(dir);
-            }
-        }
-
-        connectionsChanged();
+        return true;
     }
 
     @Override
@@ -412,7 +376,7 @@ public class StellarFluidConduit extends EnderLiquidConduit  {
 
     private boolean isDefault(IFluidFilter f) {
         if (f instanceof FluidFilter) {
-            return f.isDefault();
+            return ((FluidFilter) f).isDefault();
         }
         return false;
     }
@@ -588,14 +552,17 @@ public class StellarFluidConduit extends EnderLiquidConduit  {
 
     @Override
     @Nonnull
-    public EnderLiquidConduitNetwork createNetworkForType() {
+    public StellarFluidConduitNetwork createNetworkForType() {
         return new StellarFluidConduitNetwork();
     }
 
     @Override
     public boolean hasInternalCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing) {
-        return capability == CapabilityFilterHolder.FILTER_HOLDER_CAPABILITY
-                || capability == CapabilityUpgradeHolder.UPGRADE_HOLDER_CAPABILITY && containsExternalConnection(facing);
+        if (capability == CapabilityFilterHolder.FILTER_HOLDER_CAPABILITY
+                || capability == CapabilityUpgradeHolder.UPGRADE_HOLDER_CAPABILITY && containsExternalConnection(facing)) {
+            return true;
+        }
+        return false;
     }
 
     // FILTERS
@@ -655,7 +622,7 @@ public class StellarFluidConduit extends EnderLiquidConduit  {
     }
 
     // ------------------------------------------------
-    // STELLAR CONDUIT START
+    // ENDER CONDUIT START
     // ------------------------------------------------
 
     @Override
@@ -742,33 +709,63 @@ public class StellarFluidConduit extends EnderLiquidConduit  {
     @Override
     public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
         if (capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY) {
-            return (T) new ConnectionStellarFluidSide(facing);
+            return (T) new StellarFluidConduit.ConnectionEnderLiquidSide(facing);
         }
         return null;
     }
 
-    protected class ConnectionStellarFluidSide extends ConnectionLiquidSide {
-        public ConnectionStellarFluidSide(EnumFacing side) {
+    protected class ConnectionEnderLiquidSide extends ConnectionLiquidSide {
+        public ConnectionEnderLiquidSide(EnumFacing side) {
             super(side);
         }
-    }
 
         @Override
-        @Nonnull
-        public Collection<CollidableComponent> createCollidables(@Nonnull CollidableCache.CacheKey key) {
-            Collection<CollidableComponent> baseCollidables = super.createCollidables(key);
-            final EnumFacing keydir = key.dir;
-            if (keydir == null) {
-                return baseCollidables;
+        public int fill(FluidStack resource, boolean doFill) {
+            if (canFill(side, resource)) {
+                return network.fillFrom(StellarFluidConduit.this, side, resource, doFill);
             }
+            return 0;
+        }
 
-            BoundingBox bb = ConduitGeometryUtil.getInstance().createBoundsForConnectionController(keydir, key.offset);
-            CollidableComponent cc = new CollidableComponent(ILiquidConduit.class, bb, keydir, IPowerConduit.COLOR_CONTROLLER_ID);
-
-            List<CollidableComponent> result = new ArrayList<>();
-            result.addAll(baseCollidables);
-            result.add(cc);
-
-            return result;
+        @Override
+        public IFluidTankProperties[] getTankProperties() {
+            if (network == null) {
+                return new FluidTankProperties[0];
+            }
+            return network.getTankProperties(StellarFluidConduit.this, side);
         }
     }
+
+    @Override
+    @Nonnull
+    public Collection<CollidableComponent> createCollidables(@Nonnull CollidableCache.CacheKey key) {
+        Collection<CollidableComponent> baseCollidables = super.createCollidables(key);
+        final EnumFacing keydir = key.dir;
+        if (keydir == null) {
+            return baseCollidables;
+        }
+
+        BoundingBox bb = ConduitGeometryUtil.getInstance().createBoundsForConnectionController(keydir, key.offset);
+        CollidableComponent cc = new CollidableComponent(ILiquidConduit.class, bb, keydir, IPowerConduit.COLOR_CONTROLLER_ID);
+
+        List<CollidableComponent> result = new ArrayList<CollidableComponent>();
+        result.addAll(baseCollidables);
+        result.add(cc);
+
+        return result;
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Nonnull
+    @Override
+    public ITabPanel createGuiPanel(@Nonnull IGuiExternalConnection gui, @Nonnull IClientConduit con) {
+        return new FluidSettings(gui, con);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean updateGuiPanel(@Nonnull ITabPanel panel) {
+        return panel instanceof FluidSettings && ((FluidSettings) panel).updateConduit(this);
+    }
+
+}

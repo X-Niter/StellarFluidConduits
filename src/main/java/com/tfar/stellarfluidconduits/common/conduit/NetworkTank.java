@@ -14,21 +14,18 @@ import net.minecraft.util.math.BlockPos;
 
 public class NetworkTank {
 
-    @Nonnull
-    private final StellarFluidConduit con;
-    @Nonnull
-    private final EnumFacing conDir;
-    private final IFluidWrapper externalTank;
-    @Nonnull
-    private final EnumFacing tankDir;
-    @Nonnull
-    private final BlockPos conduitLoc;
-    private final boolean acceptsOutput;
-    private final DyeColor inputColor;
-    private final DyeColor outputColor;
-    private final int priority;
-    private final boolean roundRobin;
-    private final boolean selfFeed;
+
+    public final @Nonnull StellarFluidConduit con;
+    public final @Nonnull EnumFacing conDir;
+    public final IFluidWrapper externalTank;
+    public final @Nonnull EnumFacing tankDir;
+    public final @Nonnull BlockPos conduitLoc;
+    public final boolean acceptsOuput;
+    public final DyeColor inputColor;
+    public final DyeColor outputColor;
+    public final int priority;
+    public final boolean roundRobin;
+    public final boolean selfFeed;
 
     public NetworkTank(@Nonnull StellarFluidConduit con, @Nonnull EnumFacing conDir) {
         this.con = con;
@@ -36,7 +33,7 @@ public class NetworkTank {
         conduitLoc = con.getBundle().getLocation();
         tankDir = conDir.getOpposite();
         externalTank = AbstractLiquidConduit.getExternalFluidHandler(con.getBundle().getBundleworld(), conduitLoc.offset(conDir), tankDir);
-        acceptsOutput = con.getConnectionMode(conDir).acceptsOutput();
+        acceptsOuput = con.getConnectionMode(conDir).acceptsOutput();
         inputColor = con.getOutputColor(conDir);
         outputColor = con.getInputColor(conDir);
         priority = con.getOutputPriority(conDir);
@@ -77,49 +74,4 @@ public class NetworkTank {
         }
         return true;
     }
-    public boolean acceptsOutput() {
-        return acceptsOutput;
-    }
-
-    public DyeColor getInputColor() {
-        return inputColor;
-    }
-
-    public DyeColor getOutputColor() {
-        return outputColor;
-    }
-
-    public int getPriority() {
-        return priority;
-    }
-
-    public boolean isRoundRobin() {
-        return roundRobin;
-    }
-
-    public boolean isSelfFeed() {
-        return selfFeed;
-    }
-
-    public IFluidWrapper getExternalTank() {
-        return externalTank;
-    }
-
-    public EnumFacing getConduitDir() {
-        return conDir;
-    }
-
-    public EnumFacing getTankDir() {
-        return tankDir;
-    }
-
-    @Nonnull
-    public BlockPos getConduitLocation() {
-        return conduitLoc;
-    }
-
-    public StellarFluidConduit getConduit() {
-        return con;
-    }
-
 }
