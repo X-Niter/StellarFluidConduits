@@ -19,7 +19,7 @@ public class StellarFluidConduitRenderer extends DefaultConduitRenderer {
 
     @Override
     public boolean isRendererForConduit(@Nonnull IConduit conduit) {
-        return true;
+        return conduit instanceof StellarFluidConduit;
     }
 
     @Override
