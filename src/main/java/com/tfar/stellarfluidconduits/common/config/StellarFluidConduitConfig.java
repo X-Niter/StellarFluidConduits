@@ -4,7 +4,7 @@ import info.loenwind.autoconfig.factory.IValue;
 import info.loenwind.autoconfig.factory.IValueFactory;
 
 public class StellarFluidConduitConfig {
-    private static final int MAX = 2_000_000_000; // 0x77359400, keep some headroom to MAX_INT
+    private static final int MAX = 2000000000; // 0x77359400, keep some headroom to MAX_INT
     private static final int MAXIO = MAX / 2;
 
     public static final IValueFactory F = Config.F.section("stellarfluidconduits");

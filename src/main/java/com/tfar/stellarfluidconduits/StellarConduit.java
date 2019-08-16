@@ -1,6 +1,6 @@
 package com.tfar.stellarfluidconduits;
 
-import com.tfar.stellarfluidconduits.common.conduit.FluidConduitObject;
+import com.tfar.stellarfluidconduits.common.conduit.StellarFluidConduitObject;
 import com.tfar.stellarfluidconduits.common.conduit.stellar.StellarFluidConduit;
 import com.tfar.stellarfluidconduits.common.config.Config;
 import com.tfar.stellarfluidconduits.common.network.PacketHandler;
@@ -87,7 +87,7 @@ public class StellarConduit implements IEnderIOAddon{
 
     @SubscribeEvent
     public static void registerBlocksEarly(@Nonnull RegisterModObject event) {
-        FluidConduitObject.registerBlocksEarly(event);
+        StellarFluidConduitObject.registerBlocksEarly(event);
     }
 
     @Override

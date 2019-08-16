@@ -1,17 +1,33 @@
 package com.tfar.stellarfluidconduits.common.conduit.stellar;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import com.enderio.core.api.client.gui.ITabPanel;
 import com.enderio.core.client.render.BoundingBox;
 import com.enderio.core.client.render.IconUtil;
 import com.enderio.core.common.util.DyeColor;
 import com.enderio.core.common.util.NNList;
+import com.enderio.core.common.util.NNList.NNIterator;
+import com.enderio.core.common.util.NullHelper;
 import com.enderio.core.common.vecmath.Vector4f;
+
 import com.tfar.stellarfluidconduits.client.FluidSettings;
-import com.tfar.stellarfluidconduits.common.conduit.FluidConduitObject;
+import com.tfar.stellarfluidconduits.common.conduit.StellarFluidConduitObject;
+import com.tfar.stellarfluidconduits.common.config.StellarFluidConduitConfig;
 import crazypants.enderio.base.conduit.*;
-import crazypants.enderio.base.conduit.geom.CollidableCache;
+import crazypants.enderio.base.conduit.geom.CollidableCache.CacheKey;
 import crazypants.enderio.base.conduit.geom.CollidableComponent;
 import crazypants.enderio.base.conduit.geom.ConduitGeometryUtil;
+import crazypants.enderio.base.conduit.item.FunctionUpgrade;
+import crazypants.enderio.base.conduit.item.ItemFunctionUpgrade;
 import crazypants.enderio.base.filter.FilterRegistry;
 import crazypants.enderio.base.filter.capability.CapabilityFilterHolder;
 import crazypants.enderio.base.filter.capability.IFilterHolder;
@@ -19,6 +35,7 @@ import crazypants.enderio.base.filter.fluid.FluidFilter;
 import crazypants.enderio.base.filter.fluid.IFluidFilter;
 import crazypants.enderio.base.filter.fluid.items.IItemFilterFluidUpgrade;
 import crazypants.enderio.base.filter.gui.FilterGuiUtil;
+import crazypants.enderio.base.lang.LangFluid;
 import crazypants.enderio.base.machine.modes.RedstoneControlMode;
 import crazypants.enderio.base.tool.ToolUtil;
 import crazypants.enderio.conduits.capability.CapabilityUpgradeHolder;
@@ -29,8 +46,10 @@ import crazypants.enderio.conduits.conduit.liquid.AbstractLiquidConduit;
 import crazypants.enderio.conduits.conduit.liquid.ILiquidConduit;
 import crazypants.enderio.conduits.conduit.power.IPowerConduit;
 import crazypants.enderio.conduits.conduit.power.PowerConduit;
+import crazypants.enderio.conduits.gui.LiquidSettings;
 import crazypants.enderio.conduits.render.BlockStateWrapperConduitBundle;
 import crazypants.enderio.conduits.render.ConduitTextureWrapper;
+import crazypants.enderio.util.EnumReader;
 import crazypants.enderio.util.Prep;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -46,16 +65,10 @@ import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.*;
-import java.util.Map.Entry;
-
 import static com.tfar.stellarfluidconduits.StellarConduit.ICON_CORE_KEY;
 import static com.tfar.stellarfluidconduits.StellarConduit.ICON_KEY;
 
-public class StellarFluidConduit extends AbstractLiquidConduit implements IFilterHolder<IFluidFilter>, IUpgradeHolder, IEnderConduit  {
-
+public class StellarFluidConduit extends AbstractLiquidConduit implements IFilterHolder<IFluidFilter>, IUpgradeHolder, IEnderConduit {
 
     private StellarFluidConduitNetwork network;
     private int ticksSinceFailedExtract;
@@ -78,7 +91,7 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
 
     public StellarFluidConduit() {
         super();
-        for (NNList.NNIterator<EnumFacing> itr = NNList.FACING.fastIterator(); itr.hasNext();) {
+        for (NNIterator<EnumFacing> itr = NNList.FACING.fastIterator(); itr.hasNext();) {
             EnumFacing dir = itr.next();
             outputFilterUpgrades.put(dir, ItemStack.EMPTY);
             inputFilterUpgrades.put(dir, ItemStack.EMPTY);
@@ -90,21 +103,15 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
     @Override
     @Nonnull
     public ItemStack createItem() {
-        return new ItemStack(FluidConduitObject.itemFluidConduit.getItemNN(), 1, 0);
+        return new ItemStack(StellarFluidConduitObject.itemFluidConduit.getItemNN(), 1, 0);
     }
 
     @Override
     public @Nonnull NNList<ItemStack> getDrops() {
         NNList<ItemStack> res = super.getDrops();
-        for (ItemStack stack : functionUpgrades.values()) {
-            res.add(stack);
-        }
-        for (ItemStack stack : inputFilterUpgrades.values()) {
-            res.add(stack);
-        }
-        for (ItemStack stack : outputFilterUpgrades.values()) {
-            res.add(stack);
-        }
+        res.addAll(functionUpgrades.values());
+        res.addAll(inputFilterUpgrades.values());
+        res.addAll(outputFilterUpgrades.values());
         return res;
     }
 
@@ -165,9 +172,9 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
     @Nonnull
     public ItemStack getFilterStack(@Nonnull EnumFacing dir, boolean isInput) {
         if (isInput) {
-            return inputFilterUpgrades.get(dir);
+            return NullHelper.first(inputFilterUpgrades.get(dir), Prep.getEmpty());
         } else {
-            return outputFilterUpgrades.get(dir);
+            return NullHelper.first(outputFilterUpgrades.get(dir), Prep.getEmpty());
         }
     }
 
@@ -177,7 +184,10 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
         } else {
             outputFilterUpgrades.put(dir, stack);
         }
-        setFilter(dir, FilterRegistry.<IFluidFilter> getFilterForUpgrade(stack), isInput);
+        final IFluidFilter filterForUpgrade = FilterRegistry.getFilterForUpgrade(stack);
+        if (filterForUpgrade != null) {
+            setFilter(dir, filterForUpgrade, isInput);
+        }
         setClientStateDirty();
     }
 
@@ -203,6 +213,7 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
     // TEXTURES
     // --------------------------------
 
+    @SuppressWarnings("null")
     @SideOnly(Side.CLIENT)
     @Override
     @Nonnull
@@ -239,13 +250,20 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
 
     @Override
     public boolean canConnectToConduit(@Nonnull EnumFacing direction, @Nonnull IConduit con) {
-        if (!super.canConnectToConduit(direction, con)) {
-            return false;
-        }
-        if (!(con instanceof StellarFluidConduit)) {
-            return false;
-        }
-        return true;
+        return super.canConnectToConduit(direction, con) && con instanceof StellarFluidConduit;
+    }
+
+    @Nonnull
+    @Override
+    @SideOnly(Side.CLIENT)
+    public ITabPanel createGuiPanel(@Nonnull IGuiExternalConnection gui, @Nonnull IClientConduit con) {
+        return new FluidSettings(gui, con);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean updateGuiPanel(@Nonnull ITabPanel panel) {
+        return panel instanceof FluidSettings && ((FluidSettings) panel).updateConduit(this);
     }
 
     @Override
@@ -337,7 +355,7 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
 
     @Override
     public boolean canFill(EnumFacing from, FluidStack fluid) {
-        if (network == null) {
+        if (network == null || from == null) {
             return false;
         }
         return getConnectionMode(from).acceptsInput();
@@ -351,11 +369,11 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
     @Override
     protected void readTypeSettings(@Nonnull EnumFacing dir, @Nonnull NBTTagCompound dataRoot) {
         super.readTypeSettings(dir, dataRoot);
-        setConnectionMode(dir, ConnectionMode.values()[dataRoot.getShort("connectionMode")]);
-        setExtractionSignalColor(dir, DyeColor.values()[dataRoot.getShort("extractionSignalColor")]);
-        setExtractionRedstoneMode(RedstoneControlMode.values()[dataRoot.getShort("extractionRedstoneMode")], dir);
-        setInputColor(dir, DyeColor.values()[dataRoot.getShort("inputColor")]);
-        setOutputColor(dir, DyeColor.values()[dataRoot.getShort("outputColor")]);
+        setConnectionMode(dir, EnumReader.get(ConnectionMode.class, dataRoot.getShort("connectionMode")));
+        setExtractionSignalColor(dir, EnumReader.get(DyeColor.class, dataRoot.getShort("extractionSignalColor")));
+        setExtractionRedstoneMode(EnumReader.get(RedstoneControlMode.class, dataRoot.getShort("extractionRedstoneMode")), dir);
+        setInputColor(dir, EnumReader.get(DyeColor.class, dataRoot.getShort("inputColor")));
+        setOutputColor(dir, EnumReader.get(DyeColor.class, dataRoot.getShort("outputColor")));
         setSelfFeedEnabled(dir, dataRoot.getBoolean("selfFeed"));
         setRoundRobinEnabled(dir, dataRoot.getBoolean("roundRobin"));
         setOutputPriority(dir, dataRoot.getInteger("outputPriority"));
@@ -376,7 +394,7 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
 
     private boolean isDefault(IFluidFilter f) {
         if (f instanceof FluidFilter) {
-            return ((FluidFilter) f).isDefault();
+            return f.isDefault();
         }
         return false;
     }
@@ -405,8 +423,8 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
             }
         }
         for (Entry<EnumFacing, ItemStack> entry : inputFilterUpgrades.entrySet()) {
-            if (entry.getValue() != null) {
-                ItemStack up = entry.getValue();
+            ItemStack up = entry.getValue();
+            if (up != null && Prep.isValid(up)) {
                 IFluidFilter filter = getFilter(entry.getKey(), true);
                 FilterRegistry.writeFilterToStack(filter, up);
 
@@ -417,8 +435,8 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
         }
 
         for (Entry<EnumFacing, ItemStack> entry : outputFilterUpgrades.entrySet()) {
-            if (entry.getValue() != null) {
-                ItemStack up = entry.getValue();
+            ItemStack up = entry.getValue();
+            if (up != null && Prep.isValid(up)) {
                 IFluidFilter filter = getFilter(entry.getKey(), false);
                 FilterRegistry.writeFilterToStack(filter, up);
 
@@ -461,8 +479,8 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
         }
 
         for (Entry<EnumFacing, ItemStack> entry : functionUpgrades.entrySet()) {
-            if (entry.getValue() != null) {
-                ItemStack up = entry.getValue();
+            ItemStack up = entry.getValue();
+            if (up != null && Prep.isValid(up)) {
                 NBTTagCompound itemRoot = new NBTTagCompound();
                 up.writeToNBT(itemRoot);
                 nbtRoot.setTag("functionUpgrades." + entry.getKey().name(), itemRoot);
@@ -558,11 +576,8 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
 
     @Override
     public boolean hasInternalCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing) {
-        if (capability == CapabilityFilterHolder.FILTER_HOLDER_CAPABILITY
-                || capability == CapabilityUpgradeHolder.UPGRADE_HOLDER_CAPABILITY && containsExternalConnection(facing)) {
-            return true;
-        }
-        return false;
+        return capability == CapabilityFilterHolder.FILTER_HOLDER_CAPABILITY
+                || capability == CapabilityUpgradeHolder.UPGRADE_HOLDER_CAPABILITY && facing != null && containsExternalConnection(facing);
     }
 
     // FILTERS
@@ -675,7 +690,7 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
 
     @Nonnull
     public ItemStack getFunctionUpgrade(@Nonnull EnumFacing dir) {
-        return functionUpgrades.get(dir);
+        return NullHelper.first(functionUpgrades.get(dir), Prep.getEmpty());
     }
 
     public void setFunctionUpgrade(@Nonnull EnumFacing dir, @Nonnull ItemStack upgrade) {
@@ -694,6 +709,20 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
         this.setFunctionUpgrade(EnumFacing.byIndex(param1), stack);
     }
 
+    @Override
+    public int getUpgradeSlotLimit(@Nonnull ItemStack stack) {
+        return stack.getItem() instanceof ItemFunctionUpgrade ? ((ItemFunctionUpgrade) stack.getItem()).getUpgradeSlotLimit()
+                : IUpgradeHolder.super.getUpgradeSlotLimit(stack);
+    }
+
+    @Override
+    @Nonnull
+    public List<String> getFunctionUpgradeToolTipText(@Nonnull EnumFacing dir) {
+        return new NNList<>(crazypants.enderio.conduits.lang.Lang.GUI_LIQUID_FUNCTION_UPGRADE_DETAILS.get(),
+                crazypants.enderio.conduits.lang.Lang.GUI_LIQUID_FUNCTION_UPGRADE_DETAILS2.get((int) (100 * getExtractSpeedMultiplier(dir)),
+                        LangFluid.MB((int) (StellarFluidConduitConfig.extractRate.get() * getExtractSpeedMultiplier(dir)))));
+    }
+
     @SuppressWarnings("unchecked")
     @Nullable
     @Override
@@ -708,14 +737,14 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
     @Nullable
     @Override
     public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
-        if (capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY) {
-            return (T) new StellarFluidConduit.ConnectionEnderLiquidSide(facing);
+        if (capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY && facing != null) {
+            return (T) new ConnectionEnderLiquidSide(facing);
         }
         return null;
     }
 
     protected class ConnectionEnderLiquidSide extends ConnectionLiquidSide {
-        public ConnectionEnderLiquidSide(EnumFacing side) {
+        public ConnectionEnderLiquidSide(@Nonnull EnumFacing side) {
             super(side);
         }
 
@@ -738,7 +767,7 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
 
     @Override
     @Nonnull
-    public Collection<CollidableComponent> createCollidables(@Nonnull CollidableCache.CacheKey key) {
+    public Collection<CollidableComponent> createCollidables(@Nonnull CacheKey key) {
         Collection<CollidableComponent> baseCollidables = super.createCollidables(key);
         final EnumFacing keydir = key.dir;
         if (keydir == null) {
@@ -748,24 +777,23 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
         BoundingBox bb = ConduitGeometryUtil.getInstance().createBoundsForConnectionController(keydir, key.offset);
         CollidableComponent cc = new CollidableComponent(ILiquidConduit.class, bb, keydir, IPowerConduit.COLOR_CONTROLLER_ID);
 
-        List<CollidableComponent> result = new ArrayList<CollidableComponent>();
-        result.addAll(baseCollidables);
+        List<CollidableComponent> result = new ArrayList<>(baseCollidables);
         result.add(cc);
 
         return result;
     }
 
-    @SideOnly(Side.CLIENT)
-    @Nonnull
-    @Override
-    public ITabPanel createGuiPanel(@Nonnull IGuiExternalConnection gui, @Nonnull IClientConduit con) {
-        return new FluidSettings(gui, con);
-    }
+    public float getExtractSpeedMultiplier(@Nonnull EnumFacing dir) {
+        ItemStack upgradeStack = getFunctionUpgrade(dir);
+        if (!upgradeStack.isEmpty()) {
+            FunctionUpgrade upgrade = ItemFunctionUpgrade.getFunctionUpgrade(upgradeStack);
+            if (upgrade != null) {
+                return upgrade.getFluidSpeedMultiplier(upgradeStack.getCount());
+            }
+        }
 
-    @Override
-    @SideOnly(Side.CLIENT)
-    public boolean updateGuiPanel(@Nonnull ITabPanel panel) {
-        return panel instanceof FluidSettings && ((FluidSettings) panel).updateConduit(this);
+        return 1;
+
     }
 
 }

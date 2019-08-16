@@ -1,6 +1,5 @@
 package com.tfar.stellarfluidconduits.common.conduit;
 
-
 import javax.annotation.Nonnull;
 
 import com.enderio.core.common.fluid.IFluidWrapper;
@@ -14,8 +13,8 @@ import net.minecraft.util.math.BlockPos;
 
 public class NetworkTank {
 
-
-    public final @Nonnull StellarFluidConduit con;
+    final @Nonnull
+    public StellarFluidConduit con;
     public final @Nonnull EnumFacing conDir;
     public final IFluidWrapper externalTank;
     public final @Nonnull EnumFacing tankDir;
@@ -26,6 +25,7 @@ public class NetworkTank {
     public final int priority;
     public final boolean roundRobin;
     public final boolean selfFeed;
+    public final boolean supportsMultipleTanks;
 
     public NetworkTank(@Nonnull StellarFluidConduit con, @Nonnull EnumFacing conDir) {
         this.con = con;
@@ -39,6 +39,7 @@ public class NetworkTank {
         priority = con.getOutputPriority(conDir);
         roundRobin = con.isRoundRobinEnabled(conDir);
         selfFeed = con.isSelfFeedEnabled(conDir);
+        supportsMultipleTanks = (externalTank != null) && externalTank.getTankInfoWrappers().size() > 1;
     }
 
     public boolean isValid() {
@@ -56,22 +57,10 @@ public class NetworkTank {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
         NetworkTank other = (NetworkTank) obj;
-        if (conDir != other.conDir) {
-            return false;
-        }
-        if (!conduitLoc.equals(other.conduitLoc)) {
-            return false;
-        }
-        return true;
+        return conDir == other.conDir && conduitLoc.equals(other.conduitLoc);
     }
+
 }

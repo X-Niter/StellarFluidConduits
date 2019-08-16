@@ -34,7 +34,6 @@ public class ItemStellarFluidConduit extends AbstractItemConduit implements IAdv
     super(modObject, new ItemConduitSubtype(modObject.getUnlocalisedName(), modObject.getRegistryName().toString()));
   }
 
-
   @Override
   @SideOnly(Side.CLIENT)
   public void registerRenderers(@Nonnull IModObject modObject) {
@@ -42,21 +41,19 @@ public class ItemStellarFluidConduit extends AbstractItemConduit implements IAdv
     ConduitBundleRenderManager.instance.getConduitBundleRenderer().registerRenderer(new StellarFluidConduitRenderer());
   }
 
-  @Nonnull
   @Override
-  public Class<? extends IConduit> getBaseConduitType() {
+  public @Nonnull Class<? extends IConduit> getBaseConduitType() {
     return ILiquidConduit.class;
   }
 
   @Override
   @SideOnly(Side.CLIENT)
-  public void addCommonEntries(@Nonnull ItemStack itemStack, @Nullable EntityPlayer entityPlayer, @Nonnull List<String> list, boolean b) {
-
+  public void addCommonEntries(@Nonnull ItemStack itemstack, @Nullable EntityPlayer entityplayer, @Nonnull List<String> list, boolean flag) {
   }
 
   @Override
   @SideOnly(Side.CLIENT)
-  public void addBasicEntries(@Nonnull ItemStack itemStack, @Nullable EntityPlayer entityPlayer, @Nonnull List<String> list, boolean b) {
+  public void addBasicEntries(@Nonnull ItemStack itemstack, @Nullable EntityPlayer entityplayer, @Nonnull List<String> list, boolean flag) {
 
   }
 
@@ -73,7 +70,6 @@ public class ItemStellarFluidConduit extends AbstractItemConduit implements IAdv
     list.add(new TextComponentTranslation("stellarfluidconduits.item_fluid_conduit.tooltip.max_extract").getUnformattedComponentText() + " " + extractRate + mbt);
     list.add(new TextComponentTranslation("stellarfluidconduits.item_fluid_conduit.tooltip.max_io").getUnformattedComponentText() + " " + maxIo + mbt);
     SpecialTooltipHandler.addDetailedTooltipFromResources(list, "enderio.item_liquid_conduit_ender");
-
 
   }
 

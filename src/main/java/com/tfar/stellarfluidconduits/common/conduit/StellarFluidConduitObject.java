@@ -17,11 +17,11 @@ import javax.annotation.Nullable;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-public enum FluidConduitObject implements IModObjectBase {
+public enum StellarFluidConduitObject implements IModObjectBase {
     itemFluidConduit(ItemStellarFluidConduit::create),
 ;
     public static void registerBlocksEarly(@Nonnull RegisterModObject event) {
-        event.register(FluidConduitObject.class);
+        event.register(StellarFluidConduitObject.class);
     }
 
     @Nonnull
@@ -41,25 +41,25 @@ public enum FluidConduitObject implements IModObjectBase {
     @Nullable
     protected final IModTileEntity modTileEntity;
 
-    FluidConduitObject(@Nonnull BiFunction<IModObject, Block, Item> itemMaker) {
+    StellarFluidConduitObject(@Nonnull BiFunction<IModObject, Block, Item> itemMaker) {
         this(null, itemMaker, null);
     }
 
-    FluidConduitObject(@Nonnull Function<IModObject, Block> blockMaker) {
+    StellarFluidConduitObject(@Nonnull Function<IModObject, Block> blockMaker) {
         this(blockMaker, null, null);
     }
 
-    FluidConduitObject(@Nonnull Function<IModObject, Block> blockMaker,
-                       @Nonnull BiFunction<IModObject, Block, Item> itemMaker) {
+    StellarFluidConduitObject(@Nonnull Function<IModObject, Block> blockMaker,
+                              @Nonnull BiFunction<IModObject, Block, Item> itemMaker) {
         this(blockMaker, itemMaker, null);
     }
 
-    FluidConduitObject(@Nonnull Function<IModObject, Block> blockMaker, @Nonnull IModTileEntity modTileEntity) {
+    StellarFluidConduitObject(@Nonnull Function<IModObject, Block> blockMaker, @Nonnull IModTileEntity modTileEntity) {
         this(blockMaker, null, modTileEntity);
     }
 
-    FluidConduitObject(@Nullable Function<IModObject, Block> blockMaker,
-                     @Nullable BiFunction<IModObject, Block, Item> itemMaker, @Nullable IModTileEntity modTileEntity) {
+    StellarFluidConduitObject(@Nullable Function<IModObject, Block> blockMaker,
+                              @Nullable BiFunction<IModObject, Block, Item> itemMaker, @Nullable IModTileEntity modTileEntity) {
         this.unlocalisedName = ModObjectRegistry.sanitizeName(NullHelper.notnullJ(name(), "Enum.name()"));
         this.blockMaker = blockMaker;
         this.itemMaker = itemMaker;
