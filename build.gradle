@@ -40,6 +40,10 @@ repositories {
         url = "https://maven2.tterrag.com/"
     }
     maven {
+        name = "EnderIO - Temp"
+        url = "https://maven.hypherionmc.me/"
+    }
+    maven {
         // location of the maven that hosts JEI files
         name = "Progwml6 maven"
         url = "http://dvs1.progwml6.com/files/maven"
@@ -54,10 +58,11 @@ repositories {
 dependencies {
     deobfProvided "com.enderio.core:EnderCore:${mc_version}-${endercore_version}"
     //compile "com.enderio.core:EnderCore:${endercore_version}:core"
-    deobfCompile("com.enderio:EnderIO:${mc_version}-5.2.0"){
+    deobfCompile("com.enderio:EnderIO:${mc_version}-5.2.60"){
         transitive = false
     }
-    compile "info.loenwind.autoconfig:AutoConfig:${mc_version}-1.0.2"
+    compile "info.loenwind.autoconfig:AutoConfig:${mc_version}-1.0.4"
+    compile "info.loenwind.autosave:AutoSave:${mc_version}-${autosave_version}"
     // compile against the JEI API but do not include it at runtime
     deobfProvided "mezz.jei:jei_${mc_version}:${jei_version}:api"
     // at runtime, use the full JEI jar
