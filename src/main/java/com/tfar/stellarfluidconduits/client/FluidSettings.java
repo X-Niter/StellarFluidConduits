@@ -50,11 +50,10 @@ public class FluidSettings extends BaseSettingsPanel {
 
   private final RedstoneModeButton<?> rsB;
   private final ColorButton colorB;
-  private final boolean isEnder = true;
-  private StellarFluidConduit eCon;
+  private final StellarFluidConduit eCon;
 
-  private ColorButton insertChannelB;
-  private ColorButton extractChannelB;
+  private final ColorButton insertChannelB;
+  private final ColorButton extractChannelB;
 
   private final MultiIconButton priUpB;
   private final MultiIconButton priDownB;
@@ -62,8 +61,8 @@ public class FluidSettings extends BaseSettingsPanel {
   private final ToggleButton roundRobinB;
   private final ToggleButton loopB;
 
-  private int priLeft = 46;
-  private int priWidth = 32;
+  private final int priLeft = 46;
+  private final int priWidth = 32;
 
   private final @Nonnull ILiquidConduit conduit;
 
@@ -100,6 +99,7 @@ public class FluidSettings extends BaseSettingsPanel {
 
     x = rightColumn;
     int x0 = x + 20;
+    boolean isEnder = true;
     if (isEnder) {
       y += insertChannelB.getHeight() + 6;
     }
