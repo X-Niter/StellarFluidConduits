@@ -299,7 +299,7 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
         doExtract();
     }
 
-    private void doExtract() {
+    protected void doExtract() {
         if (!hasExtractableMode()) {
             return;
         }
@@ -322,6 +322,11 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
             }
         }
 
+    }
+
+    @Override
+    protected boolean doExtract(@Nonnull EnumFacing dir) {
+        return network.extractFrom(this, dir);
     }
 
     // ---------- Fluid Capability -----------------
@@ -584,11 +589,11 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
 
     @Override
     @Nonnull
-    public ItemStack getFilterStack(int filterIndex, int param1) {
+    public ItemStack getFilterStack(int filterIndex, EnumFacing side) {
         if (filterIndex == FilterGuiUtil.INDEX_INPUT_FLUID) {
-            return getFilterStack(EnumFacing.byIndex(param1), true);
+            return getFilterStack(side, true);
         } else if (filterIndex == FilterGuiUtil.INDEX_OUTPUT_FLUID) {
-            return getFilterStack(EnumFacing.byIndex(param1), false);
+            return getFilterStack(side, false);
         }
         return ItemStack.EMPTY;
     }
@@ -596,28 +601,28 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
     @Override
     public IFluidFilter getFilter(int filterIndex, int param1) {
         if (filterIndex == FilterGuiUtil.INDEX_INPUT_FLUID) {
-            return getFilter(EnumFacing.byIndex(param1), true);
+            return getFilter(EnumFacing.getFront(param1), true);
         } else if (filterIndex == FilterGuiUtil.INDEX_OUTPUT_FLUID) {
-            return getFilter(EnumFacing.byIndex(param1), false);
+            return getFilter(EnumFacing.getFront(param1), false);
         }
         return null;
     }
 
     @Override
-    public void setFilter(int filterIndex, int param1, @Nonnull IFluidFilter filter) {
+    public void setFilter(int filterIndex, EnumFacing side, @Nonnull IFluidFilter filter) {
         if (filterIndex == FilterGuiUtil.INDEX_INPUT_FLUID) {
-            setFilter(EnumFacing.byIndex(param1), filter, true);
+            setFilter(side, filter, true);
         } else if (filterIndex == FilterGuiUtil.INDEX_OUTPUT_FLUID) {
-            setFilter(EnumFacing.byIndex(param1), filter, false);
+            setFilter(side, filter, false);
         }
     }
 
     @Override
-    public void setFilterStack(int filterIndex, int param1, @Nonnull ItemStack stack) {
+    public void setFilterStack(int filterIndex, EnumFacing side, @Nonnull ItemStack stack) {
         if (filterIndex == FilterGuiUtil.INDEX_INPUT_FLUID) {
-            setFilterStack(EnumFacing.byIndex(param1), stack, true);
+            setFilterStack(side, stack, true);
         } else if (filterIndex == FilterGuiUtil.INDEX_OUTPUT_FLUID) {
-            setFilterStack(EnumFacing.byIndex(param1), stack, false);
+            setFilterStack(side, stack, false);
         }
     }
 
@@ -701,12 +706,12 @@ public class StellarFluidConduit extends AbstractLiquidConduit implements IFilte
     @Override
     @Nonnull
     public ItemStack getUpgradeStack(int param1) {
-        return this.getFunctionUpgrade(EnumFacing.byIndex(param1));
+        return this.getFunctionUpgrade(EnumFacing.getFront(param1));
     }
 
     @Override
     public void setUpgradeStack(int param1, @Nonnull ItemStack stack) {
-        this.setFunctionUpgrade(EnumFacing.byIndex(param1), stack);
+        this.setFunctionUpgrade(EnumFacing.getFront(param1), stack);
     }
 
     @Override

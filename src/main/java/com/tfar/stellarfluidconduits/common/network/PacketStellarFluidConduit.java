@@ -77,11 +77,9 @@ public class PacketStellarFluidConduit extends PacketConduitFilter<StellarFluidC
 
         private void applyFilter(EnumFacing dir, IConduit conduit, IFilter filter, boolean isInput) {
             if (conduit.hasInternalCapability(CapabilityFilterHolder.FILTER_HOLDER_CAPABILITY, dir)) {
-                IFilterHolder<IFilter> filterHolder = conduit.getInternalCapability(CapabilityFilterHolder.FILTER_HOLDER_CAPABILITY, dir);
-                if (isInput) {
-                    filterHolder.setFilter(filterHolder.getInputFilterIndex(), dir.ordinal(), filter);
-                } else {
-                    filterHolder.setFilter(filterHolder.getOutputFilterIndex(), dir.ordinal(), filter);
+                IFilterHolder<IFilter> filterHolder = CapabilityFilterHolder.FILTER_HOLDER_CAPABILITY.cast(conduit.getInternalCapability(CapabilityFilterHolder.FILTER_HOLDER_CAPABILITY, dir));
+                if (filterHolder != null) {
+                    filterHolder.setFilter(isInput ? filterHolder.getInputFilterIndex() : filterHolder.getOutputFilterIndex(), dir, filter);
                 }
             }
         }

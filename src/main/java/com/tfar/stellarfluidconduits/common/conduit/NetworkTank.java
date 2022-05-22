@@ -17,7 +17,6 @@ public class NetworkTank {
     public StellarFluidConduit con;
     public final @Nonnull EnumFacing conDir;
     public final IFluidWrapper externalTank;
-    public final @Nonnull EnumFacing tankDir;
     public final @Nonnull BlockPos conduitLoc;
     public final boolean acceptsOuput;
     public final DyeColor inputColor;
@@ -31,8 +30,7 @@ public class NetworkTank {
         this.con = con;
         this.conDir = conDir;
         conduitLoc = con.getBundle().getLocation();
-        tankDir = conDir.getOpposite();
-        externalTank = AbstractLiquidConduit.getExternalFluidHandler(con.getBundle().getBundleworld(), conduitLoc.offset(conDir), tankDir);
+        externalTank = con.getExternalHandler(conDir);
         acceptsOuput = con.getConnectionMode(conDir).acceptsOutput();
         inputColor = con.getOutputColor(conDir);
         outputColor = con.getInputColor(conDir);
